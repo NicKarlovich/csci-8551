@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import time
 import random
 
+showing = False
+
 # base class for agents
 class Agent:
     def __init__(self, speed, x, y, taurusMap):
@@ -11,7 +13,7 @@ class Agent:
         self.map = taurusMap
 
     def chooseDestination(self):
-        return (self.x,self.y)
+        return (self.x+1,self.y)
 
     def getLocation(self):
         return (self.x,self.y)
@@ -122,7 +124,7 @@ class TaurusMap:
 
         # predators then move, don't move if spot already taken
         for i in range(len(predatorMoves)):
-            prey = self.predators[i]
+            predator = self.predators[i]
             move = predatorMoves[i]
             if move not in self.getPreyLocations() and move not in self.getPredatorLocations():
                 predator.setLocation(move[0], move[1])
@@ -153,7 +155,9 @@ class TaurusMap:
         plt.legend()
      
         # function to show the plot
-        plt.show()
+        plt.draw()
+        plt.pause(0.0001)
+        plt.clf()
 
 
 def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey_speed = 1):
@@ -184,6 +188,7 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
     while not taurusMap.preyCaptured():
         taurusMap.relocate()
         taurusMap.displayMap()
+        time.sleep(1)
         iterations += 1
     
 
