@@ -12,6 +12,10 @@ class Agent:
     def getLocation(self):
         return (self.x,self.y)
 
+    def setLocation(self,x,y):
+        self.x = x
+        self.y = y
+
 
 # base class for prey
 class Prey(Agent):
@@ -79,6 +83,32 @@ class TaurusMap:
                 return True
 
         return False
+
+    def relocate(self):
+        # prey determine their moves
+        preyMoves = []
+        for prey in self.prey:
+            preyMoves.append(prey.chooseDestination())
+
+        # predator determine their moves
+        predatorMoves = []
+        for predator in self.predators():
+            predatorMoves.append(predator.chooseDestination())
+
+        # prey move first, don't move if spot already taken
+        for i in range(len(preyMoves)):
+            prey = self.prey[i]
+            move = preyMoves[i]
+            if move not in self.getPreyLocations() and move not in self.getPredatorLocations():
+                prey.setLocation(move[0], move[1])
+
+        # predators then move, don't move if spot already taken
+        for i in range(len(predatorMoves)):
+            prey = self.predators[i]
+            move = predatorMoves[i]
+            if move not in self.getPreyLocations() and move not in self.getPredatorLocations():
+                predator.setLocation(move[0], move[1])
+            
             
 def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey_speed = 1):
     locations = []
@@ -104,6 +134,12 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
             taurusMap.addPrey(predator)
             i += 1
 
+    iterations = 0
+    while not taurusMap.preyCaptured():
+        taurusMap.relocate()
+        iterations += 1
+
+    print(iterations)
     
 
 if __name__ == "__main__":
