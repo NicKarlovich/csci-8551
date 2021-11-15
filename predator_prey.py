@@ -164,8 +164,10 @@ class TaurusMap:
 
 def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey_speed = 1):
     locations = []
+    # initialize map
     taurusMap = TaurusMap(x_len,y_len)
 
+    # initialize prey in random locations not overlapping
     i = 0
     while i < num_prey:
         x_val = random.randint(0,x_len-1)
@@ -176,6 +178,7 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
             taurusMap.addPrey(prey)
             i += 1
 
+    # initialize predators in random locations not overlapping
     i = 0
     while i < num_predators:
         x_val = random.randint(0,x_len-1)
@@ -186,7 +189,10 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
             taurusMap.addPredator(predator)
             i += 1
 
+    
     #global iterations
+
+    # iterate through timesteps of simulation until prey is captured
     iterations = 0
     while not taurusMap.preyCaptured():
         taurusMap.relocate()
