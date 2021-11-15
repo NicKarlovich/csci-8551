@@ -153,9 +153,11 @@ class TaurusMap:
         plt.xticks(range(0,self.x_len,1))
         plt.yticks(range(0,self.y_len,1))
         plt.legend()
-     
+
         # function to show the plot
         plt.draw()
+        #global iterations
+        #plt.savefig("iteration" + str(iterations) + ".png")
         plt.pause(0.0001)
         plt.clf()
 
@@ -183,7 +185,8 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
             predator = Predator(predator_speed, x_val, y_val, taurusMap)
             taurusMap.addPredator(predator)
             i += 1
-    
+
+    #global iterations
     iterations = 0
     while not taurusMap.preyCaptured():
         taurusMap.relocate()
