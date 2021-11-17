@@ -33,6 +33,22 @@ class Prey(Agent):
         pass
     '''
 
+# Random moving prey
+class RandomPrey(Agent):
+    def __init__(self, speed, x, y, taurusMap):
+        super().__init__(speed, x, y, taurusMap)
+    
+    def chooseDestination(self):
+        direction = random.randint(0, 3)
+        if direction == 0:
+            return (self.x + 1, self.y)
+        if direction == 1:
+            return (self.x - 1, self.y)
+        if direction == 2:
+            return (self.x, self.y + 1)
+        if direction == 3:
+            return (self.x, self.y - 1)
+
 # base class for predators
 class Predator(Agent):
     def __init__(self, speed, x, y, taurusMap):
@@ -174,7 +190,8 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
         y_val = random.randint(0,y_len-1)
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
-            prey = Prey(prey_speed, x_val, y_val, taurusMap)
+            #prey = Prey(prey_speed, x_val, y_val, taurusMap)
+            prey = RandomPrey(prey_speed, x_val, y_val, taurusMap)
             taurusMap.addPrey(prey)
             i += 1
 
