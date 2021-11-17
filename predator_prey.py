@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import time
 import random
+import math
 
 showing = False
 
@@ -32,6 +33,15 @@ class Prey(Agent):
     def chooseDestination(self):
         pass
     '''
+
+# Staionary prey
+# used for testing
+class StationaryPrey(Agent):
+    def __init__(self, speed, x, y, taurusMap):
+        super().__init__(speed, x, y, taurusMap)
+
+    def chooseDestination(self):
+        return (self.x,self.y)
 
 # Random moving prey
 class RandomPrey(Agent):
@@ -146,6 +156,29 @@ class TaurusMap:
                 predator.setLocation(move[0], move[1])
                 self.updatePredatorLocations()
 
+    # Helper function which can print out the map in console, rather than using matplotlib
+    # Useful for debugging since MatPlotLib doesn't play nice with debugger.
+    def printMap(self):
+        print(" y")
+        print(" ^")
+        print(" |")
+        pred_count = 1
+        for y in range(self.y_len - 1, -1, -1):
+            outString = str(y) + "| "
+            for x in range(0, self.x_len):
+                if (x, y) in self.predatorLocations:
+                    outString = outString + str(pred_count) + " "
+                    pred_count += 1
+                elif (x, y) in self.preyLocations:
+                    outString = outString + "$ "
+                else:
+                    outString = outString + "  "
+            print(outString)
+        print(" * - - - - - --> x")
+        print("   0 1 2 3 4")
+        print("prey locations (x, y): " + str(self.preyLocations))
+        print("predator locations (x, y): " + str(self.predatorLocations))
+
     # displays map
     def displayMap(self):
         prey_x = []
@@ -178,7 +211,7 @@ class TaurusMap:
         plt.clf()
 
 
-def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey_speed = 1):
+def main(x_len, y_len, num_predators = 1, predator_speed = 1, num_prey = 1, prey_speed = 1):
     locations = []
     # initialize map
     taurusMap = TaurusMap(x_len,y_len)
@@ -191,7 +224,8 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
             #prey = Prey(prey_speed, x_val, y_val, taurusMap)
-            prey = RandomPrey(prey_speed, x_val, y_val, taurusMap)
+            prey = StationaryPrey(prey_speed, x_val, y_val, taurusMap)
+            #prey = RandomPrey(prey_speed, x_val, y_val, taurusMap)
             taurusMap.addPrey(prey)
             i += 1
 
@@ -213,7 +247,8 @@ def main(x_len, y_len, num_predators = 4, predator_speed = 1, num_prey = 1, prey
     iterations = 0
     while not taurusMap.preyCaptured():
         taurusMap.relocate()
-        taurusMap.displayMap()
+        #taurusMap.displayMap()
+        taurusMap.printMap()
         time.sleep(1)
         iterations += 1
     
