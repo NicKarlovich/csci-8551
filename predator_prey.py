@@ -7,11 +7,12 @@ showing = False
 
 # base class for agents
 class Agent:
-    def __init__(self, speed, x, y, taurusMap):
+    def __init__(self, speed, x, y, taurusMap, id):
         self.speed = speed
         self.x = x
         self.y = y
         self.map = taurusMap
+        self.id = id
 
     def chooseDestination(self):
         return (self.x+1,self.y)
@@ -26,8 +27,8 @@ class Agent:
 
 # base class for prey
 class Prey(Agent):
-    def __init__(self, speed, x, y, taurusMap):
-        super().__init__(speed, x, y, taurusMap)
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
 
     '''
     def chooseDestination(self):
@@ -37,16 +38,16 @@ class Prey(Agent):
 # Staionary prey
 # used for testing
 class StationaryPrey(Agent):
-    def __init__(self, speed, x, y, taurusMap):
-        super().__init__(speed, x, y, taurusMap)
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
 
     def chooseDestination(self):
         return (self.x,self.y)
 
 # Random moving prey
 class RandomPrey(Agent):
-    def __init__(self, speed, x, y, taurusMap):
-        super().__init__(speed, x, y, taurusMap)
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
     
     def chooseDestination(self):
         direction = random.randint(0, 3)
@@ -61,13 +62,84 @@ class RandomPrey(Agent):
 
 # base class for predators
 class Predator(Agent):
-    def __init__(self, speed, x, y, taurusMap):
-        super().__init__(speed, x, y, taurusMap)
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
 
     '''
     def chooseDestination(self):
         pass
     '''
+
+# Greedy predator, constantly attempts to move towards prey
+# not very intelligent will get stuck
+class GreedyPredator(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    #yPreyLocation is the y value of where the prey is now % map dimensions.
+    def yDirection(self, yPreyLocation):
+        offset = self.y - yPreyLocation
+        #if negative, predator is lower on map than prey
+        #if positive, predator is higher on map
+        #if 0, then predator on same y as prey
+        if offset == 0:
+            return 0
+        if offset < 0:
+            # equal to only applies in case where taursMap.y_len is even, in those cases when you're literally the furthest point away from 
+            # the prey on this axis, it doesn't matter in a greedy sense if you go decide to loop around or go from the other direction, so I arbitrarily
+            # chose to make it so it goes down.
+            if abs(offset) >= math.ceil(self.map.y_len / 2):
+                return -1
+            if abs(offset) < math.ceil(self.map.y_len / 2):
+                return 1
+        if offset > 0:
+            #same logic as above for = sign in below conditional
+            if abs(offset) >= math.ceil(self.map.y_len / 2): 
+                return 1
+            if abs(offset) < math.ceil(self.map.y_len / 2):
+                return -1
+
+    def xDirection(self, xPreyLocation):
+        offset = self.x - xPreyLocation
+        #if negative, predator is lower on map than prey
+        #if positive, predator is higher on map
+        #if 0, then predator on same x as prey
+        if offset == 0:
+            return 0
+        if offset < 0:
+            # equal to only applies in case where taursMap.x_len is even, in those cases when you're literally the furthest point away from 
+            # the prey on this axis, it doesn't matter in a greedy sense if you go decide to loop around or go from the other direction, so I arbitrarily
+            # chose to make it so it goes left.
+            if abs(offset) >= math.ceil(self.map.x_len / 2): 
+                return -1
+            if abs(offset) < math.ceil(self.map.x_len / 2):
+                return 1
+        if offset > 0:
+            #same logic as above for = sign in below conditional
+            if abs(offset) >= math.ceil(self.map.x_len / 2): 
+                return 1
+            if abs(offset) < math.ceil(self.map.x_len / 2):
+                return -1
+
+    def chooseDestination(self):
+        x = self.map.getPreyLocations() #this method can return nothing for a while?
+        if x == []:
+            return (self.x, self.y)
+        [(x, y)] = self.map.getPreyLocations()
+        
+        
+        xOff = self.xDirection(x)
+        yOff = self.yDirection(y)
+        # we dont' want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
+        if xOff != 0 and yOff != 0:
+            if random.randint(0,1) == 0:
+                return (self.x + xOff, self.y) #ignore y offset
+            else:
+                return (self.x, self.y + yOff) #ignore x offset
+        else:
+            #to get here, at least one of the offsets == 0, so we can just include both, and simplify cases.
+            return (self.x + xOff, self.y + yOff)
+        return (self.x, self.y)
 
 # keeps track of agents located in map
 class TaurusMap:
@@ -162,13 +234,13 @@ class TaurusMap:
         print(" y")
         print(" ^")
         print(" |")
-        pred_count = 1
         for y in range(self.y_len - 1, -1, -1):
             outString = str(y) + "| "
             for x in range(0, self.x_len):
                 if (x, y) in self.predatorLocations:
-                    outString = outString + str(pred_count) + " "
-                    pred_count += 1
+                    for pred in self.predators:
+                        if pred.getLocation() == (x, y):
+                            outString = outString + str(pred.id) + " "
                 elif (x, y) in self.preyLocations:
                     outString = outString + "$ "
                 else:
@@ -211,7 +283,7 @@ class TaurusMap:
         plt.clf()
 
 
-def main(x_len, y_len, num_predators = 1, predator_speed = 1, num_prey = 1, prey_speed = 1):
+def main(x_len, y_len, num_predators = 2, predator_speed = 1, num_prey = 1, prey_speed = 1):
     locations = []
     # initialize map
     taurusMap = TaurusMap(x_len,y_len)
@@ -223,8 +295,8 @@ def main(x_len, y_len, num_predators = 1, predator_speed = 1, num_prey = 1, prey
         y_val = random.randint(0,y_len-1)
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
-            #prey = Prey(prey_speed, x_val, y_val, taurusMap)
-            prey = StationaryPrey(prey_speed, x_val, y_val, taurusMap)
+            #prey = Prey(prey_speed, x_val, y_val, taurusMap, 0)
+            prey = StationaryPrey(prey_speed, x_val, y_val, taurusMap, 0)
             #prey = RandomPrey(prey_speed, x_val, y_val, taurusMap)
             taurusMap.addPrey(prey)
             i += 1
@@ -236,7 +308,8 @@ def main(x_len, y_len, num_predators = 1, predator_speed = 1, num_prey = 1, prey
         y_val = random.randint(0,y_len-1)
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
-            predator = Predator(predator_speed, x_val, y_val, taurusMap)
+            #predator = Predator(predator_speed, x_val, y_val, taurusMap, i + 1)
+            predator = GreedyPredator(predator_speed, x_val, y_val, taurusMap, i + 1)
             taurusMap.addPredator(predator)
             i += 1
 
