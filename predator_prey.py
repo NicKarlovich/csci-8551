@@ -24,6 +24,9 @@ class Agent:
         self.x = x
         self.y = y
 
+    def getId(self):
+        return self.id
+
 
 # base class for prey
 class Prey(Agent):
@@ -76,6 +79,14 @@ class GreedyPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    def totalDistanceToAgent(self, agentLocationTuple):
+        xOff = abs(self.xMagnitude(agentLocationTuple[0]))
+        yOff = abs(self.yMagnitude(agentLocationTuple[1]))
+        return xOff + yOff
+
+    def yMagnitude(self, yPreyLocation):
+        return self.y - yPreyLocation
+
     #yPreyLocation is the y value of where the prey is now % map dimensions.
     def yDirection(self, yPreyLocation):
         offset = self.y - yPreyLocation
@@ -99,6 +110,9 @@ class GreedyPredator(Agent):
             if abs(offset) < math.ceil(self.map.y_len / 2):
                 return -1
 
+    def xMagnitude(self, xPreyLocation):
+        return self.x - xPreyLocation
+
     def xDirection(self, xPreyLocation):
         offset = self.x - xPreyLocation
         #if negative, predator is lower on map than prey
@@ -121,16 +135,55 @@ class GreedyPredator(Agent):
             if abs(offset) < math.ceil(self.map.x_len / 2):
                 return -1
 
+    def findClosestDestination(self):
+        x = self.map.getPreyLocations() #this method can return nothing for a while?
+        if x == []: # if there's no prey, don't move anywhere.
+            return (self.x, self.y)
+
+        [(x, y)] = self.map.getPreyLocations()
+                            #N, S, W, E
+        unitDirectionArr = [(x, (y + 1) % 5), (x, (y - 1) % 5), ((x - 1) % 5, y), ((x + 1) % 5, y)]
+        namedDirectionsArr = ['north', 'south', 'west', 'east']
+        lengthArr = map(self.totalDistanceToAgent, unitDirectionArr)
+        stateOfLocationsArr = map(self.map.returnStateOfCell, unitDirectionArr)
+        tempLengthDict = dict(zip(namedDirectionsArr, lengthArr))
+        tempStateDict = dict(zip(namedDirectionsArr, stateOfLocationsArr))
+        stateDict = {key:val for key, val in tempStateDict.items() if val == "empty"}
+        lengthDict = dict(sorted(tempLengthDict.items(), key = lambda x:x[1]))
+        coordDict = dict(zip(namedDirectionsArr, unitDirectionArr))
+
+        for k,v in lengthDict.items():
+            if k in stateDict.keys():
+                coord = coordDict[k]
+                return(k, v, coord)
+        
+        return ('none', -1)
+
     def chooseDestination(self):
         x = self.map.getPreyLocations() #this method can return nothing for a while?
-        if x == []:
+        if x == []: # if there's no prey, don't move anywhere.
             return (self.x, self.y)
+
         [(x, y)] = self.map.getPreyLocations()
+
+        print(self.map.returnStateOfCell((x, y))) #itself
+        print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
+        print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
+        print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
+        print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
+        #print(self.findClosestDestination())
+
+        goalDestination = self.findClosestDestination()[2]
         
-        
+<<<<<<< HEAD
         xOff = self.xDirection(x)
         yOff = self.yDirection(y)
         # we don't want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
+=======
+        xOff = self.xDirection(goalDestination[0])
+        yOff = self.yDirection(goalDestination[1])
+        # we dont' want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
+>>>>>>> 4321418ba4013c5f056bfbc01f4f598deedf891a
         if xOff != 0 and yOff != 0:
             if random.randint(0,1) == 0:
                 return (self.x + xOff, self.y) #ignore y offset
@@ -139,6 +192,8 @@ class GreedyPredator(Agent):
         else:
             #to get here, at least one of the offsets == 0, so we can just include both, and simplify cases.
             return (self.x + xOff, self.y + yOff)
+        
+
         return (self.x, self.y)
 
 class TeammateAwarePredator(Agent):
@@ -198,10 +253,10 @@ class TaurusMap:
     def __init__(self, x_len, y_len):
         self.x_len = x_len
         self.y_len = y_len
-        self.prey = []
-        self.predators = []
-        self.preyLocations = []
-        self.predatorLocations = []
+        self.prey = [] #list of prey objects
+        self.predators = [] #list of predator objects
+        self.preyLocations = []  #list of tuples representing prey locations
+        self.predatorLocations = [] #list of tuples representign predator locations
 
     # applies taurus to coordinates       
     def taurusCoord(self,loc):
@@ -262,6 +317,18 @@ class TaurusMap:
                 return True
 
         return False
+
+    #returns state of a given cell, is of 3 options:
+    # `empty`, `prey:{id}`, `predator:{id}`
+    def returnStateOfCell(self, locationTuple):
+        for prey in self.prey:
+            if prey.getLocation() == locationTuple:
+                return "prey:" + str(prey.id)
+        for pred in self.predators:
+            if pred.getLocation() == locationTuple:
+                return "predator:" + str(pred.id)
+        return "empty"
+
 
     # obtains destinations for each agent and moves them
     def relocate(self):
