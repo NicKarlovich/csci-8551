@@ -175,15 +175,9 @@ class GreedyPredator(Agent):
 
         goalDestination = self.findClosestDestination()[2]
         
-<<<<<<< HEAD
-        xOff = self.xDirection(x)
-        yOff = self.yDirection(y)
-        # we don't want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
-=======
         xOff = self.xDirection(goalDestination[0])
         yOff = self.yDirection(goalDestination[1])
         # we dont' want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
->>>>>>> 4321418ba4013c5f056bfbc01f4f598deedf891a
         if xOff != 0 and yOff != 0:
             if random.randint(0,1) == 0:
                 return (self.x + xOff, self.y) #ignore y offset
