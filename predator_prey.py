@@ -35,7 +35,7 @@ class Prey(Agent):
         pass
     '''
 
-# Staionary prey
+# Stationary prey
 # used for testing
 class StationaryPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -130,7 +130,7 @@ class GreedyPredator(Agent):
         
         xOff = self.xDirection(x)
         yOff = self.yDirection(y)
-        # we dont' want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
+        # we don't want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
         if xOff != 0 and yOff != 0:
             if random.randint(0,1) == 0:
                 return (self.x + xOff, self.y) #ignore y offset
@@ -141,6 +141,58 @@ class GreedyPredator(Agent):
             return (self.x + xOff, self.y + yOff)
         return (self.x, self.y)
 
+class TeammateAwarePredator(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def h(self,x,y):
+        loc = self.map.getAdjacentPreyLocations()
+        minDist = float('inf')
+        for i in range(loc[0]):
+            dist = (loc[0] - x)**2 + (loc[1] - y)**2 
+        return 
+
+    def a_star():
+        distances = []
+        for i in range(self.map.x_len):
+            temp = []
+            for j in range(self.map.y_len):
+                temp.append(-1)
+            distances.append(temp)
+        
+        queue = [[0, (self.x,self.y), []]]
+        done = []
+        found_adjacent_space = False
+        i = 1
+        while not found_adjacent_space:
+            val = queue[0][1]
+            queue = queue[1:]
+
+            north = val[]
+        
+    
+    def chooseDestination(self):
+        loc = self.map.getAdjacentPreyLocations()
+        
+        if x == []:
+            return (self.x, self.y)
+        [(x, y)] = self.map.getPreyLocations()
+        
+        
+        xOff = self.xDirection(x)
+        yOff = self.yDirection(y)
+        # we don't want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
+        if xOff != 0 and yOff != 0:
+            if random.randint(0,1) == 0:
+                return (self.x + xOff, self.y) #ignore y offset
+            else:
+                return (self.x, self.y + yOff) #ignore x offset
+        else:
+            #to get here, at least one of the offsets == 0, so we can just include both, and simplify cases.
+            return (self.x + xOff, self.y + yOff)
+        return (self.x, self.y)
+
+    
 # keeps track of agents located in map
 class TaurusMap:
     def __init__(self, x_len, y_len):
@@ -184,7 +236,18 @@ class TaurusMap:
     # get (x,y) coordinates for each prey
     def getPreyLocations(self):
         return self.preyLocations
-    
+
+    # get (x,y) coordinates for adjacent cells next to prey
+    def getAdjacentPreyLocations(self):
+        locations = []
+        for loc in self.preyLocations:
+            north = self.taurusCoord((loc[0],loc[1]-1))
+            south = self.taurusCoord((loc[0],loc[1]+1))
+            east = self.taurusCoord((loc[0]+1,loc[1]))
+            west = self.taurusCoord((loc[0]-1,loc[1]))
+            locations.append([north,south,east,west])
+        return locations
+
     # returns True/False if prey is captured
     def preyCaptured(self):
         preyLocations = self.getPreyLocations()
