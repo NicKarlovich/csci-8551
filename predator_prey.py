@@ -194,31 +194,70 @@ class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
-    def h(self,x,y):
+    def h(self,coord):
+        x = coord[0]
+        y = coord[1]
         loc = self.map.getAdjacentPreyLocations()
         minDist = float('inf')
         for i in range(loc[0]):
-            dist = (loc[0] - x)**2 + (loc[1] - y)**2 
-        return 
-
+            dist = ((loc[0] - x)**2 + (loc[1] - y)**2)**0.5
+            if dist < minDist:
+                minDist = dist
+        return minDist
+    
     def a_star():
-        distances = []
-        for i in range(self.map.x_len):
-            temp = []
-            for j in range(self.map.y_len):
-                temp.append(-1)
-            distances.append(temp)
+        # dictionary containing distance and path
+        info = {(self.x,self.y): [0,[]]}
         
-        queue = [[0, (self.x,self.y), []]]
-        done = []
-        found_adjacent_space = False
-        i = 1
-        while not found_adjacent_space:
-            val = queue[0][1]
-            queue = queue[1:]
+        # list of points to explore
+        queue = [(self.x,self.y)]
 
-            north = val[]
+        # list of points that have been explored
+        done = []
+
+        # goal locations
+        adjPreyLoc = self.map.getAdjacentPreyLocations()
+
+        # locations of predators, considered obstacles
+        predLoc = self.map.getPredatorLocations()
         
+        found_adjacent_space = False
+        while not found_adjacent_space:
+            coord = queue[0]
+            path = info[coord][1]
+            g = len(path)
+            new_path = path + [val]
+            done.append(coord)
+
+            if val in adjPreyLoc[0]:
+                found_adjacent_space = True
+            else:
+                north = (val[0], val[1] - 1)
+                south = (val[0], val[1] + 1)
+                east = (val[0] - 1, val[1])
+                west = (val[0] + 1, val[1])
+                new_coords = [north, south, east, west]
+
+                for pt in new_coords:
+                    if pt not in predLoc:
+                        h = self.h(pt)
+                        if pt not in queue and pt not in done:
+                            f = g + h
+                            i = 0
+                            inserted = False
+                            while i < len(queue) and not inserted:
+                                el = queue[i]
+                                if info[el][0] > f:
+                                    queue.insert(
+                            if not inserted:
+                                
+                                    
+                            queue.append([g+h,north,new_path])
+                        elif pt in queue:
+                    
+            if north in adjPreyLoc
+            
+            queue.append(
     
     def chooseDestination(self):
         loc = self.map.getAdjacentPreyLocations()
