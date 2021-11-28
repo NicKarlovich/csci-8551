@@ -194,18 +194,22 @@ class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    # determines L1-norm distance to nearest adjacent square
     def h(self,coord):
         x = coord[0]
         y = coord[1]
+        xMod = self.map.x_len
+        yMod = self.map.y_len
+        
         loc = self.map.getAdjacentPreyLocations()
         minDist = float('inf')
         for i in range(loc[0]):
-            dist = ((loc[0] - x)**2 + (loc[1] - y)**2)**0.5
+            dist = min((loc[0]-x)%xMod,(x-loc[0])%xMod) + min((loc[0]-x)%yMod,(x-loc[0])%yMod)
             if dist < minDist:
                 minDist = dist
         return minDist
     
-    def a_star():
+    def a_star(self):
         # dictionary containing distance and path
         info = {(self.x,self.y): [0,[]]}
         
@@ -223,15 +227,20 @@ class TeammateAwarePredator(Agent):
         
         found_adjacent_space = False
         while not found_adjacent_space:
+            # get data for closest target
             coord = queue[0]
             path = info[coord][1]
             g = len(path)
             new_path = path + [val]
+
+            # mark target as done
             done.append(coord)
 
-            if val in adjPreyLoc[0]:
+            # stop when we are adjacent to prey
+            if coord in adjPreyLoc[0]:
                 found_adjacent_space = True
             else:
+                # get coords of nearby squares
                 north = (val[0], val[1] - 1)
                 south = (val[0], val[1] + 1)
                 east = (val[0] - 1, val[1])
@@ -239,47 +248,43 @@ class TeammateAwarePredator(Agent):
                 new_coords = [north, south, east, west]
 
                 for pt in new_coords:
+                    # determine how close point is to goal
+                    h = self.h(pt)
+                    f = g + h
                     if pt not in predLoc:
-                        h = self.h(pt)
                         if pt not in queue and pt not in done:
-                            f = g + h
                             i = 0
                             inserted = False
                             while i < len(queue) and not inserted:
                                 el = queue[i]
                                 if info[el][0] > f:
-                                    queue.insert(
+                                    queue.insert(i,pt)
+                                    info[pt] = [g+h,new_path]
+                                i += 1
                             if not inserted:
-                                
-                                    
-                            queue.append([g+h,north,new_path])
+                                queue.append(pt)
+                                info[pt] = [g+h,new_path]
+                            
                         elif pt in queue:
-                    
-            if north in adjPreyLoc
-            
-            queue.append(
+                            if info[pt][0] > g+h:
+                                info[pt][0] = g+h
+                                queue.remove(pt)
+                                i = 0
+                                inserted = False
+                                while i < len(queue) and not inserted:
+                                    el = queue[i]
+                                    if info[el][0] > f:
+                                        queue.insert(i,pt)
+                                    i += 1
+                                if not inserted:
+                                    queue.append(pt)
+
+        # return first step of shortest path
+        return path[0]
     
     def chooseDestination(self):
-        loc = self.map.getAdjacentPreyLocations()
-        
-        if x == []:
-            return (self.x, self.y)
-        [(x, y)] = self.map.getPreyLocations()
-        
-        
-        xOff = self.xDirection(x)
-        yOff = self.yDirection(y)
-        # we don't want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
-        if xOff != 0 and yOff != 0:
-            if random.randint(0,1) == 0:
-                return (self.x + xOff, self.y) #ignore y offset
-            else:
-                return (self.x, self.y + yOff) #ignore x offset
-        else:
-            #to get here, at least one of the offsets == 0, so we can just include both, and simplify cases.
-            return (self.x + xOff, self.y + yOff)
-        return (self.x, self.y)
-
+        target = self.a_star()
+        return target
     
 # keeps track of agents located in map
 class TaurusMap:
