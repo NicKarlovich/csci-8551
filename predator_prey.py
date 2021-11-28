@@ -25,18 +25,8 @@ class Agent:
         self.y = y
 
     def getId(self):
-        return self.id
+        return self.id    
 
-
-# base class for prey
-class Prey(Agent):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-
-    '''
-    def chooseDestination(self):
-        pass
-    '''
 
 # Stationary prey
 # used for testing
@@ -46,6 +36,7 @@ class StationaryPrey(Agent):
 
     def chooseDestination(self):
         return (self.x,self.y)
+
 
 # Random moving prey
 class RandomPrey(Agent):
@@ -63,15 +54,6 @@ class RandomPrey(Agent):
         if direction == 3:
             return (self.x, self.y - 1)
 
-# base class for predators
-class Predator(Agent):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-
-    '''
-    def chooseDestination(self):
-        pass
-    '''
 
 # Greedy predator, constantly attempts to move towards prey
 # not very intelligent will get stuck
@@ -196,15 +178,10 @@ class TeammateAwarePredator(Agent):
 
     # determines L1-norm distance to nearest adjacent square
     def h(self,coord):
-        x = coord[0]
-        y = coord[1]
-        xMod = self.map.x_len
-        yMod = self.map.y_len
-        
         loc = self.map.getAdjacentPreyLocations()
         minDist = float('inf')
         for i in range(loc[0]):
-            dist = min((loc[0]-x)%xMod,(x-loc[0])%xMod) + min((loc[0]-x)%yMod,(x-loc[0])%yMod)
+            dist = self.map.getTotalDistance(loc[0][i],coord)
             if dist < minDist:
                 minDist = dist
         return minDist
@@ -241,43 +218,53 @@ class TeammateAwarePredator(Agent):
                 found_adjacent_space = True
             else:
                 # get coords of nearby squares
-                north = (val[0], val[1] - 1)
-                south = (val[0], val[1] + 1)
-                east = (val[0] - 1, val[1])
-                west = (val[0] + 1, val[1])
-                new_coords = [north, south, east, west]
-
+                new_coords = self.map.getAdjacentSquares(val)
+                
                 for pt in new_coords:
                     # determine how close point is to goal
                     h = self.h(pt)
                     f = g + h
+
+                    # if new location is predator, treat as obstacle and ignore
                     if pt not in predLoc:
+                        # if new location is undiscovered
                         if pt not in queue and pt not in done:
                             i = 0
                             inserted = False
+                            # insert into sorted queue
                             while i < len(queue) and not inserted:
                                 el = queue[i]
                                 if info[el][0] > f:
                                     queue.insert(i,pt)
                                     info[pt] = [g+h,new_path]
                                 i += 1
+                                
+                            # insert at end if largest distance away
                             if not inserted:
                                 queue.append(pt)
                                 info[pt] = [g+h,new_path]
-                            
+                        
+                        # if new location is discovered and not finished
                         elif pt in queue:
+                            # if better than previous value, update queue
                             if info[pt][0] > g+h:
-                                info[pt][0] = g+h
+                                # update in info and remove from queue
                                 queue.remove(pt)
+                                
                                 i = 0
                                 inserted = False
+                                # insert into sorted queue
                                 while i < len(queue) and not inserted:
                                     el = queue[i]
                                     if info[el][0] > f:
                                         queue.insert(i,pt)
+                                        info[pt] = [g+h,new_path]
                                     i += 1
+
+                                # insert at end if largest distance away
                                 if not inserted:
                                     queue.append(pt)
+                                    info[pt] = [g+h,new_path]
 
         # return first step of shortest path
         return path[0]
@@ -300,6 +287,26 @@ class TaurusMap:
     def taurusCoord(self,loc):
         return (loc[0] % self.x_len, loc[1] % self.y_len)
 
+    # gets adjacent squares in taurus
+    def getAdjacentSquares(self,loc):
+        north = self.map.taurusCoord((loc[0],loc[1]-1))
+        south = self.map.taurusCoord((loc[0],loc[1]+1))
+        east = self.map.taurusCoord((loc[0]+1,loc[1]))
+        west = self.map.taurusCoord((loc[0]-1,loc[1]))
+        return [north,south,east,west]
+
+    def getXDistance(self,loc1,loc2):
+        x_dist = min((loc1[0]-loc2[0])%self.x_len,(loc[1]-loc[0])%self.x_len)
+        return x_dist
+    
+    def getYDistance(self,loc1,loc2):
+        y_dist = min((loc1[1]-loc2[1])%self.y_len,(loc2[1]-loc1[1])%self.y_len)
+        return y_dist
+    
+    def getTotalDistance(self,loc1,loc2):
+        total_dist = self.getXDistance(loc1,loc2) + self.getYDistance(loc1,loc2)        
+        return total_dist
+    
     # add agent to prey list
     def addPrey(self, new_prey):
         self.prey.append(new_prey)
@@ -333,12 +340,9 @@ class TaurusMap:
     # get (x,y) coordinates for adjacent cells next to prey
     def getAdjacentPreyLocations(self):
         locations = []
-        for loc in self.preyLocations:
-            north = self.taurusCoord((loc[0],loc[1]-1))
-            south = self.taurusCoord((loc[0],loc[1]+1))
-            east = self.taurusCoord((loc[0]+1,loc[1]))
-            west = self.taurusCoord((loc[0]-1,loc[1]))
-            locations.append([north,south,east,west])
+        for prey in self.prey:
+            preyCoord = (prey.x,prey.y)
+            locations.append(self.map.getAdjacentSquares(preyCoord))
         return locations
 
     # returns True/False if prey is captured
@@ -346,14 +350,17 @@ class TaurusMap:
         preyLocations = self.getPreyLocations()
         for loc in preyLocations:
             predatorLocations = self.getPredatorLocations()
-            north = self.taurusCoord((loc[0],loc[1]-1)) in predatorLocations
-            south = self.taurusCoord((loc[0],loc[1]+1)) in predatorLocations
-            east = self.taurusCoord((loc[0]+1,loc[1])) in predatorLocations
-            west = self.taurusCoord((loc[0]-1,loc[1])) in predatorLocations
 
-            if north and south and east and west:
+            surrounded = True
+            adjCoords = self.map.getAdjacentSquares(loc)
+
+            for adj in adjCoords:
+                if adj not in predatorLocations:
+                    surrounded = False
+
+            if surrounded:
                 return True
-
+            
         return False
 
     #returns state of a given cell, is of 3 options:
