@@ -63,7 +63,7 @@ class GreedyPredator(Agent):
 
     #takes in x and y, returns a tuple with the value modulo'd by mapsize
     def tauCoords(self, x, y):
-        return (x % self.taurusMap.x_len, y % self.taurusMap.y_len)
+        return (x % self.map.x_len, y % self.map.y_len)
 
     def totalDistanceToAgent(self, agentLocationTuple):
         xOff = abs(self.xMagnitude(agentLocationTuple[0]))
@@ -76,50 +76,64 @@ class GreedyPredator(Agent):
     #yPreyLocation is the y value of where the prey is now % map dimensions.
     def yDirection(self, yPreyLocation):
         offset = self.y - yPreyLocation
-        #if negative, predator is lower on map than prey
-        #if positive, predator is higher on map
-        #if 0, then predator on same y as prey
-        if offset == 0:
-            return 0
-        if offset < 0:
-            # equal to only applies in case where taursMap.y_len is even, in those cases when you're literally the furthest point away from 
-            # the prey on this axis, it doesn't matter in a greedy sense if you go decide to loop around or go from the other direction, so I arbitrarily
-            # chose to make it so it goes down.
-            if abs(offset) >= math.ceil(self.map.y_len / 2):
-                return -1
-            if abs(offset) < math.ceil(self.map.y_len / 2):
-                return 1
-        if offset > 0:
-            #same logic as above for = sign in below conditional
-            if abs(offset) >= math.ceil(self.map.y_len / 2): 
-                return 1
-            if abs(offset) < math.ceil(self.map.y_len / 2):
-                return -1
+        
+        # the distance to prey location is less than half the board length, 
+        # thus it is faster than wrapping around toroidal nature of board 
+        if abs(offset) < math.ceil(self.map.y_len / 2):
+            yMag = offset
+        else:
+            # It is faster to wrap around toroidal nature of board to
+            # reach goal location, if abs(offset) == math.ceil(...) then it is equal distance to go either 
+            # direction.  Happen to choose to swap direction in this implementation, doesn't matter though
+            if offset < 0:
+                yMag = offset + self.map.y_len
+            elif offset > 0:
+                yMag = offset - self.map.y_len
+            else: #offset == 0
+                yMag = 0
+        return yMag
+        
+    def yDirection(self, yPreyLocation):
+        yMag = self.yMagnitude(yPreyLocation)
+        if yMag < 0:
+            dir = -1
+        if yMag > 0:
+            dir = 1
+        if yMag == 0:
+            dir = 0
+        return dir
 
     def xMagnitude(self, xPreyLocation):
         return self.x - xPreyLocation
 
     def xDirection(self, xPreyLocation):
         offset = self.x - xPreyLocation
-        #if negative, predator is lower on map than prey
-        #if positive, predator is higher on map
-        #if 0, then predator on same x as prey
-        if offset == 0:
-            return 0
-        if offset < 0:
-            # equal to only applies in case where taursMap.x_len is even, in those cases when you're literally the furthest point away from 
-            # the prey on this axis, it doesn't matter in a greedy sense if you go decide to loop around or go from the other direction, so I arbitrarily
-            # chose to make it so it goes left.
-            if abs(offset) >= math.ceil(self.map.x_len / 2): 
-                return -1
-            if abs(offset) < math.ceil(self.map.x_len / 2):
-                return 1
-        if offset > 0:
-            #same logic as above for = sign in below conditional
-            if abs(offset) >= math.ceil(self.map.x_len / 2): 
-                return 1
-            if abs(offset) < math.ceil(self.map.x_len / 2):
-                return -1
+        
+        # the distance to prey location is less than half the board length, 
+        # thus it is faster than wrapping around toroidal nature of board 
+        if abs(offset) < math.ceil(self.map.x_len / 2):
+            xMag = offset
+        else:
+            # It is faster to wrap around toroidal nature of board to
+            # reach goal location, if abs(offset) == math.ceil(...) then it is equal distance to go either 
+            # direction.  Happen to choose to swap direction in this implementation, doesn't matter though
+            if offset < 0:
+                xMag = offset + self.map.x_len
+            elif offset > 0:
+                xMag = offset - self.map.x_len
+            else: #offset == 0
+                xMag = 0
+        return xMag
+
+    def xDirection(self, xPreyLocation):
+        xMag = self.xMagnitude(xPreyLocation)
+        if xMag < 0:
+            dir = -1
+        if xMag > 0:
+            dir = 1
+        if xMag == 0:
+            dir = 0
+        return dir
 
     def findClosestDestination(self):
         x = self.map.getPreyLocations() #this method can return nothing for a while?
