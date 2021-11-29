@@ -61,6 +61,10 @@ class GreedyPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    #takes in x and y, returns a tuple with the value modulo'd by mapsize
+    def tauCoords(self, x, y):
+        return (x % self.taurusMap.x_len, y % self.taurusMap.y_len)
+
     def totalDistanceToAgent(self, agentLocationTuple):
         xOff = abs(self.xMagnitude(agentLocationTuple[0]))
         yOff = abs(self.yMagnitude(agentLocationTuple[1]))
@@ -140,6 +144,20 @@ class GreedyPredator(Agent):
                 return(k, v, coord)
         
         return ('none', -1)
+
+    def nextToPrey(self, preyX, preyY):
+        if self.x == preyX:
+            if (self.y - 1) % 5 == preyY:
+                return True
+            if (self.y + 1) % 5 == preyY:
+                return True
+        if self.y == preyY:
+            if (self.x - 1) % 5 == preyX:
+                return True
+            if (self.x + 1) % 5 == preyX:
+                return True
+        return False
+        
 
     def chooseDestination(self):
         x = self.map.getPreyLocations() #this method can return nothing for a while?
