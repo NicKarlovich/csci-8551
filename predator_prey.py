@@ -173,37 +173,59 @@ class GreedyPredator(Agent):
                 return True
         return False
         
+    '''
+        Next codeblock represents:
+        * let d = dim_max, if m_d is not blocked, take it
+        * let d = dim_min, if m_d is not blocked, take it
+
+        Outer if-elif statement checks which direction (x or y) has the larger dim_max.  For either case, we 
+        then check if the location we want to move is empty. if it is, then we move there, if it isn't, 
+        then we go to the direction that is the dim_min since there are only two directions, the other 
+        axis will always be the dim_min, so we can then check that direction to see if it's empty, and 
+        if it is move to that location.
+    '''    
+    def dimDirectionChooser(self):
+        goalDestination = self.findClosestDestination()[2]
+            
+        xOff = self.xDirection(goalDestination[0])
+        yOff = self.yDirection(goalDestination[1])
+
+        if abs(self.xMagnitude()) > abs(self.yMagnitude()):
+            if self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
+                out = self.tauCoords(self.x + xOff, self.y)
+            elif self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
+                out = self.tauCoords(self.x, self.y + yOff)
+        elif abs(self.xMagnitude()) <= abs(self.yMagnitude()):
+            if self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
+                out = self.tauCoords(self.x, self.y + yOff)
+            elif self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
+                out = self.tauCoords(self.x + xOff, self.y)
+        else: # Otherwise move randomly
+            out = self.randomDirection()
+        return out
 
     def chooseDestination(self):
-        x = self.map.getPreyLocations() #this method can return nothing for a while?
+        x = self.map.getPreyLocations()
         if x == []: # if there's no prey, don't move anywhere.
-            return (self.x, self.y)
-
+            out = (self.x, self.y)
+        else:
+            #get prey location
         [(x, y)] = self.map.getPreyLocations()
 
+            #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
+            if self.nextToPrey(x, y):
+                out = (x, y)
+
+            out = self.dimDirectionChooser()
+            '''
         print(self.map.returnStateOfCell((x, y))) #itself
         print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
         print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
         print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
         print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
         #print(self.findClosestDestination())
-
-        goalDestination = self.findClosestDestination()[2]
-        
-        xOff = self.xDirection(goalDestination[0])
-        yOff = self.yDirection(goalDestination[1])
-        # we dont' want agent to move diagonally, so we have to decide, do we prioritize x movement or y movement, we'll choose so randomly!
-        if xOff != 0 and yOff != 0:
-            if random.randint(0,1) == 0:
-                return (self.x + xOff, self.y) #ignore y offset
-            else:
-                return (self.x, self.y + yOff) #ignore x offset
-        else:
-            #to get here, at least one of the offsets == 0, so we can just include both, and simplify cases.
-            return (self.x + xOff, self.y + yOff)
-        
-
-        return (self.x, self.y)
+            '''
+        return out
 
 class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
