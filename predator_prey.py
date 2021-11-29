@@ -29,7 +29,7 @@ class Agent:
 
     def getId(self):
         return self.id    
-
+    
     def randomDirection(self):
         direction = random.randint(0, 3)
         if direction == 0: # right
@@ -172,7 +172,7 @@ class GreedyPredator(Agent):
             elif self.tauCoords(self.x + 1, 0)[0] == preyX:
                 return True
         return False
-        
+
     '''
         Next codeblock represents:
         * let d = dim_max, if m_d is not blocked, take it
@@ -196,7 +196,7 @@ class GreedyPredator(Agent):
             elif self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
                 out = self.tauCoords(self.x, self.y + yOff)
         elif abs(self.xMagnitude()) <= abs(self.yMagnitude()):
-            if self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
+            if self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty": 
                 out = self.tauCoords(self.x, self.y + yOff)
             elif self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
                 out = self.tauCoords(self.x + xOff, self.y)
@@ -210,7 +210,7 @@ class GreedyPredator(Agent):
             out = (self.x, self.y)
         else:
             #get prey location
-        [(x, y)] = self.map.getPreyLocations()
+            [(x, y)] = self.map.getPreyLocations()
 
             #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
             if self.nextToPrey(x, y):
@@ -218,12 +218,12 @@ class GreedyPredator(Agent):
 
             out = self.dimDirectionChooser()
             '''
-        print(self.map.returnStateOfCell((x, y))) #itself
-        print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
-        print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
-        print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
-        print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
-        #print(self.findClosestDestination())
+                print(self.map.returnStateOfCell((x, y))) #itself
+                print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
+                print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
+                print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
+                print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
+                #print(self.findClosestDestination())
             '''
         return out
 
