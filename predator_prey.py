@@ -71,10 +71,6 @@ class GreedyPredator(Agent):
         return xOff + yOff
 
     def yMagnitude(self, yPreyLocation):
-        return self.y - yPreyLocation
-
-    #yPreyLocation is the y value of where the prey is now % map dimensions.
-    def yDirection(self, yPreyLocation):
         offset = self.y - yPreyLocation
         
         # the distance to prey location is less than half the board length, 
@@ -104,9 +100,6 @@ class GreedyPredator(Agent):
         return dir
 
     def xMagnitude(self, xPreyLocation):
-        return self.x - xPreyLocation
-
-    def xDirection(self, xPreyLocation):
         offset = self.x - xPreyLocation
         
         # the distance to prey location is less than half the board length, 
