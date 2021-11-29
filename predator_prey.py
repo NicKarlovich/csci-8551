@@ -14,6 +14,9 @@ class Agent:
         self.map = taurusMap
         self.id = id
 
+    def tauCoords(self, x, y):
+        return (x % self.map.x_len, y % self.map.y_len)
+
     def chooseDestination(self):
         return (self.x+1,self.y)
 
@@ -26,6 +29,18 @@ class Agent:
 
     def getId(self):
         return self.id    
+
+    def randomDirection(self):
+        direction = random.randint(0, 3)
+        if direction == 0: # right
+            out = self.tauCoords(self.x + 1, self.y)
+        if direction == 1: # left
+            out = self.tauCoords(self.x - 1, self.y)
+        if direction == 2: # up
+            out = self.tauCoords(self.x, self.y + 1)
+        if direction == 3: # down
+            out = self.tauCoords(self.x, self.y - 1)
+        return out
 
 
 # Stationary prey
@@ -44,15 +59,7 @@ class RandomPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
     
     def chooseDestination(self):
-        direction = random.randint(0, 3)
-        if direction == 0:
-            return (self.x + 1, self.y)
-        if direction == 1:
-            return (self.x - 1, self.y)
-        if direction == 2:
-            return (self.x, self.y + 1)
-        if direction == 3:
-            return (self.x, self.y - 1)
+        return self.randomDirection()
 
 
 # Greedy predator, constantly attempts to move towards prey
@@ -128,14 +135,15 @@ class GreedyPredator(Agent):
             dir = 0
         return dir
 
+    # Returns (cardinal direction, distance to that direction, coord of closest destination on taurus)
     def findClosestDestination(self):
-        x = self.map.getPreyLocations() #this method can return nothing for a while?
+        x = self.map.getPreyLocations()
         if x == []: # if there's no prey, don't move anywhere.
             return (self.x, self.y)
 
         [(x, y)] = self.map.getPreyLocations()
                             #N, S, W, E
-        unitDirectionArr = [(x, (y + 1) % 5), (x, (y - 1) % 5), ((x - 1) % 5, y), ((x + 1) % 5, y)]
+        unitDirectionArr = [self.tauCoords(x, y + 1), self.tauCoords(x, y - 1), self.tauCoords(x - 1, y), self.tauCoords(x + 1, y)]
         namedDirectionsArr = ['north', 'south', 'west', 'east']
         lengthArr = map(self.totalDistanceToAgent, unitDirectionArr)
         stateOfLocationsArr = map(self.map.returnStateOfCell, unitDirectionArr)
@@ -154,14 +162,14 @@ class GreedyPredator(Agent):
 
     def nextToPrey(self, preyX, preyY):
         if self.x == preyX:
-            if (self.y - 1) % 5 == preyY:
+            if self.tauCoords(0,self.y - 1)[1] == preyY:
                 return True
-            if (self.y + 1) % 5 == preyY:
+            elif self.tauCoords(0,self.y + 1)[1] == preyY:
                 return True
-        if self.y == preyY:
-            if (self.x - 1) % 5 == preyX:
+        elif self.y == preyY:
+            if self.tauCoords(self.x - 1, 0)[0] == preyX:
                 return True
-            if (self.x + 1) % 5 == preyX:
+            elif self.tauCoords(self.x + 1, 0)[0] == preyX:
                 return True
         return False
         
