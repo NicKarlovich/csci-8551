@@ -190,12 +190,12 @@ class GreedyPredator(Agent):
         xOff = self.xDirection(goalDestination[0])
         yOff = self.yDirection(goalDestination[1])
 
-        if abs(self.xMagnitude()) > abs(self.yMagnitude()):
+        if abs(self.xMagnitude(goalDestination[0])) > abs(self.yMagnitude(goalDestination[1])):
             if self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
                 out = self.tauCoords(self.x + xOff, self.y)
             elif self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
                 out = self.tauCoords(self.x, self.y + yOff)
-        elif abs(self.xMagnitude()) <= abs(self.yMagnitude()):
+        elif abs(self.xMagnitude(goalDestination[0])) <= abs(self.yMagnitude(goalDestination[1])):
             if self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty": 
                 out = self.tauCoords(self.x, self.y + yOff)
             elif self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
@@ -235,7 +235,7 @@ class TeammateAwarePredator(Agent):
     def h(self,coord):
         loc = self.map.getAdjacentPreyLocations()
         minDist = float('inf')
-        for i in range(loc[0]):
+        for i in range(len(loc[0])):
             dist = self.map.getTotalDistance(loc[0][i],coord)
             if dist < minDist:
                 minDist = dist
@@ -263,23 +263,24 @@ class TeammateAwarePredator(Agent):
             coord = queue[0]
             path = info[coord][1]
             g = len(path)
-            new_path = path + [val]
+            new_path = path + [coord]
 
             # mark target as done
             done.append(coord)
+            queue = queue[1:]
 
             # stop when we are adjacent to prey
             if coord in adjPreyLoc[0]:
                 found_adjacent_space = True
             else:
                 # get coords of nearby squares
-                new_coords = self.map.getAdjacentSquares(val)
+                new_coords = self.map.getAdjacentSquares(coord)
                 
                 for pt in new_coords:
                     # determine how close point is to goal
                     h = self.h(pt)
                     f = g + h
-
+        
                     # if new location is predator, treat as obstacle and ignore
                     if pt not in predLoc:
                         # if new location is undiscovered
@@ -292,13 +293,14 @@ class TeammateAwarePredator(Agent):
                                 if info[el][0] > f:
                                     queue.insert(i,pt)
                                     info[pt] = [g+h,new_path]
+                                    inserted = True
                                 i += 1
-                                
+
                             # insert at end if largest distance away
                             if not inserted:
                                 queue.append(pt)
                                 info[pt] = [g+h,new_path]
-                        
+
                         # if new location is discovered and not finished
                         elif pt in queue:
                             # if better than previous value, update queue
@@ -314,15 +316,18 @@ class TeammateAwarePredator(Agent):
                                     if info[el][0] > f:
                                         queue.insert(i,pt)
                                         info[pt] = [g+h,new_path]
+                                        inserted = True
                                     i += 1
-
                                 # insert at end if largest distance away
                                 if not inserted:
                                     queue.append(pt)
                                     info[pt] = [g+h,new_path]
-
+        print(path)
         # return first step of shortest path
-        return path[0]
+        if len(new_path) == 1:
+            return self.map.getPreyLocations()[0]
+        else:
+            return new_path[1]
     
     def chooseDestination(self):
         target = self.a_star()
@@ -344,14 +349,14 @@ class TaurusMap:
 
     # gets adjacent squares in taurus
     def getAdjacentSquares(self,loc):
-        north = self.map.taurusCoord((loc[0],loc[1]-1))
-        south = self.map.taurusCoord((loc[0],loc[1]+1))
-        east = self.map.taurusCoord((loc[0]+1,loc[1]))
-        west = self.map.taurusCoord((loc[0]-1,loc[1]))
+        north = self.taurusCoord((loc[0],loc[1]-1))
+        south = self.taurusCoord((loc[0],loc[1]+1))
+        east = self.taurusCoord((loc[0]+1,loc[1]))
+        west = self.taurusCoord((loc[0]-1,loc[1]))
         return [north,south,east,west]
 
     def getXDistance(self,loc1,loc2):
-        x_dist = min((loc1[0]-loc2[0])%self.x_len,(loc[1]-loc[0])%self.x_len)
+        x_dist = min((loc1[0]-loc2[0])%self.x_len,(loc2[0]-loc1[0])%self.x_len)
         return x_dist
     
     def getYDistance(self,loc1,loc2):
@@ -365,10 +370,12 @@ class TaurusMap:
     # add agent to prey list
     def addPrey(self, new_prey):
         self.prey.append(new_prey)
+        self.updatePreyLocations()
 
     # add agent to predator list
     def addPredator(self, new_predator):
         self.predators.append(new_predator)
+        self.updatePredatorLocations()
 
     # update (x,y) coordinates for each prey
     def updatePreyLocations(self):
@@ -397,7 +404,7 @@ class TaurusMap:
         locations = []
         for prey in self.prey:
             preyCoord = (prey.x,prey.y)
-            locations.append(self.map.getAdjacentSquares(preyCoord))
+            locations.append(self.getAdjacentSquares(preyCoord))
         return locations
 
     # returns True/False if prey is captured
@@ -407,7 +414,7 @@ class TaurusMap:
             predatorLocations = self.getPredatorLocations()
 
             surrounded = True
-            adjCoords = self.map.getAdjacentSquares(loc)
+            adjCoords = self.getAdjacentSquares(loc)
 
             for adj in adjCoords:
                 if adj not in predatorLocations:
@@ -513,33 +520,30 @@ class TaurusMap:
         plt.clf()
 
 
-def main(x_len, y_len, num_predators = 2, predator_speed = 1, num_prey = 1, prey_speed = 1):
+def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_speed = 1):
     locations = []
     # initialize map
     taurusMap = TaurusMap(x_len,y_len)
 
     # initialize prey in random locations not overlapping
     i = 0
-    while i < num_prey:
+    while i < len(preyClasses):
         x_val = random.randint(0,x_len-1)
         y_val = random.randint(0,y_len-1)
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
-            #prey = Prey(prey_speed, x_val, y_val, taurusMap, 0)
-            prey = StationaryPrey(prey_speed, x_val, y_val, taurusMap, 0)
-            #prey = RandomPrey(prey_speed, x_val, y_val, taurusMap)
+            prey = preyClasses[i](prey_speed, x_val, y_val, taurusMap, 0)
             taurusMap.addPrey(prey)
             i += 1
 
     # initialize predators in random locations not overlapping
     i = 0
-    while i < num_predators:
+    while i < len(predatorClasses):
         x_val = random.randint(0,x_len-1)
         y_val = random.randint(0,y_len-1)
         if (x_val, y_val) not in locations:
             locations.append((x_val, y_val))
-            #predator = Predator(predator_speed, x_val, y_val, taurusMap, i + 1)
-            predator = GreedyPredator(predator_speed, x_val, y_val, taurusMap, i + 1)
+            predator = predatorClasses[i](predator_speed, x_val, y_val, taurusMap, i + 1)
             taurusMap.addPredator(predator)
             i += 1
 
@@ -557,4 +561,7 @@ def main(x_len, y_len, num_predators = 2, predator_speed = 1, num_prey = 1, prey
     
 
 if __name__ == "__main__":
-    main(5,5)
+    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+
+    main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
+    
