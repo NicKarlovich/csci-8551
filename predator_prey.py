@@ -62,8 +62,7 @@ class RandomPrey(Agent):
         return self.randomDirection()
 
 
-# Greedy predator, constantly attempts to move towards prey
-# not very intelligent will get stuck
+# Greedy predator, constantly attempts to move towards prey, follows logic defined in paper
 class GreedyPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
@@ -78,7 +77,8 @@ class GreedyPredator(Agent):
         return xOff + yOff
 
     def yMagnitude(self, yPreyLocation):
-        offset = self.y - yPreyLocation
+        #offset = self.y - yPreyLocation
+        offset = yPreyLocation - self.y
         
         # the distance to prey location is less than half the board length, 
         # thus it is faster than wrapping around toroidal nature of board 
@@ -107,7 +107,8 @@ class GreedyPredator(Agent):
         return dir
 
     def xMagnitude(self, xPreyLocation):
-        offset = self.x - xPreyLocation
+        #offset = self.x - xPreyLocation
+        offset = xPreyLocation - self.x
         
         # the distance to prey location is less than half the board length, 
         # thus it is faster than wrapping around toroidal nature of board 
@@ -189,7 +190,7 @@ class GreedyPredator(Agent):
             
         xOff = self.xDirection(goalDestination[0])
         yOff = self.yDirection(goalDestination[1])
-
+        out = ""
         if abs(self.xMagnitude(goalDestination[0])) > abs(self.yMagnitude(goalDestination[1])):
             if self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
                 out = self.tauCoords(self.x + xOff, self.y)
@@ -200,7 +201,7 @@ class GreedyPredator(Agent):
                 out = self.tauCoords(self.x, self.y + yOff)
             elif self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
                 out = self.tauCoords(self.x + xOff, self.y)
-        else: # Otherwise move randomly
+        if out == "": # Otherwise move randomly
             out = self.randomDirection()
         return out
 
@@ -215,16 +216,16 @@ class GreedyPredator(Agent):
             #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
             if self.nextToPrey(x, y):
                 out = (x, y)
-
-            out = self.dimDirectionChooser()
-            '''
-                print(self.map.returnStateOfCell((x, y))) #itself
-                print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
-                print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
-                print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
-                print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
-                #print(self.findClosestDestination())
-            '''
+            else: 
+                out = self.dimDirectionChooser()
+                '''
+                    print(self.map.returnStateOfCell((x, y))) #itself
+                    print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
+                    print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
+                    print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
+                    print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
+                    #print(self.findClosestDestination())
+                '''
         return out
 
 class TeammateAwarePredator(Agent):
@@ -483,8 +484,12 @@ class TaurusMap:
                 else:
                     outString = outString + "  "
             print(outString)
-        print(" * - - - - - --> x")
-        print("   0 1 2 3 4")
+        print(" *" + str(" -") * self.x_len + " --> x")
+        #print(" * - - - - - --> x")
+        xAxis = "   "
+        for i in range(0, self.x_len):
+            xAxis += str(i) + " "
+        print(xAxis)    
         print("prey locations (x, y): " + str(self.preyLocations))
         print("predator locations (x, y): " + str(self.predatorLocations))
 
@@ -552,6 +557,7 @@ def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_sp
 
     # iterate through timesteps of simulation until prey is captured
     iterations = 0
+    taurusMap.printMap()
     while not taurusMap.preyCaptured():
         taurusMap.relocate()
         #taurusMap.displayMap()
@@ -561,7 +567,9 @@ def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_sp
     
 
 if __name__ == "__main__":
-    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+    main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+    #main(5,5,[GreedyPredator],[StationaryPrey])
+    #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
-    main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
+    #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
     
