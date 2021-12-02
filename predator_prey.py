@@ -330,6 +330,12 @@ class TeammateAwarePredator(Agent):
             return new_path[1]
     
     def chooseDestination(self):
+        adjPreyLoc = self.map.getAdjacentPreyLocations()
+        predLoc = self.map.getPredatorLocations()
+
+        
+        
+        self.map.getTotalDistance(
         target = self.a_star()
         return target
     
