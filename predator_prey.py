@@ -228,6 +228,13 @@ class GreedyPredator(Agent):
                 '''
         return out
 
+class GreedyProbabilisticPredator(GreedyPredator):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+    
+    def chooseDestination(self):
+        return (self.x, self.y)
+
 class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
@@ -567,7 +574,8 @@ def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_sp
     
 
 if __name__ == "__main__":
-    main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+    main(5, 5, [GreedyProbabilisticPredator], [StationaryPrey])
     #main(5,5,[GreedyPredator],[StationaryPrey])
     #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
