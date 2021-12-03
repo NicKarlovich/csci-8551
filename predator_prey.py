@@ -330,7 +330,7 @@ class TeammateAwarePredator(Agent):
                                 if not inserted:
                                     queue.append(pt)
                                     info[pt] = [g+h,new_path]
-        print(path)
+
         # return first step of shortest path
         if len(new_path) == 1:
             return self.map.getPreyLocations()[0]
@@ -338,8 +338,51 @@ class TeammateAwarePredator(Agent):
             return new_path[1]
     
     def chooseDestination(self):
-        target = self.a_star()
-        return target
+        adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
+        predLoc = self.map.getPredatorLocations()
+
+        # get distances of predators to adjacent squares
+        distances = []
+        for loc in predLoc:
+            for target in adjPreyLoc:
+                dist = self.map.getTotalDistance(loc,target)
+                distances.append((dist,loc,target))
+
+        # sort from furthest to closest to furthest away
+        distances.sort(reverse = True)
+
+        # keep track of number of predator to goal distances removed
+        predatorCount = {}
+        for loc in predLoc:
+            predatorCount[loc] = 0
+        
+        destination = None
+        while allocation != []:
+            # remove worst distance, track which predator it belonged to
+            choice = distances[0]
+            predatorCount[choice[1]] += 1
+            distances = distances[1:]
+
+            # if this is last predator, give location to it
+            if predatorCount[choice[1]] == len(adjPreyLoc):
+                # if this is our predator, note destination and end early
+                if choice[1] == self.getLocation():
+                    destination = choice[2]
+                    break
+
+                # if not our predator, remove target as option for other predators
+                else:
+                    for dist in distances:
+                        if choice[2] == dist[2]:
+                            distances.remove(dist)
+
+        # if predator is at goal location, move on prey, otherwise perform A*
+        if self.getLocation() == destination:
+            first_move = self.map.getPreyLocations()[0]
+        else:
+            first_move = self.a_star(destination)
+
+        return first_move
     
 # keeps track of agents located in map
 class TaurusMap:
@@ -575,9 +618,8 @@ def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_sp
 
 if __name__ == "__main__":
     #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
-    main(5, 5, [GreedyProbabilisticPredator], [StationaryPrey])
     #main(5,5,[GreedyPredator],[StationaryPrey])
     #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
-    #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
+    main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
     
