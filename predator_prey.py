@@ -42,6 +42,13 @@ class Agent:
             out = self.tauCoords(self.x, self.y - 1)
         return out
 
+    def softmax(self, valueA, temp, allDirectionsValues):
+        num = math.exp(valueA / temp)
+        den = 0
+        for i in range(0, len(allDirectionsValues)):
+            den += (i / temp)
+        return num / den
+
 
 # Stationary prey
 # used for testing
@@ -218,22 +225,30 @@ class GreedyPredator(Agent):
                 out = (x, y)
             else: 
                 out = self.dimDirectionChooser()
-                '''
-                    print(self.map.returnStateOfCell((x, y))) #itself
-                    print(self.map.returnStateOfCell(((x + 1) % 5, y))) #right
-                    print(self.map.returnStateOfCell(((x - 1) % 5, y))) #left 
-                    print(self.map.returnStateOfCell((x, (y + 1) % 5))) #up
-                    print(self.map.returnStateOfCell((x, (y - 1) % 5))) # down
-                    #print(self.findClosestDestination())
-                '''
         return out
 
 class GreedyProbabilisticPredator(GreedyPredator):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
     
+    def softmax(self):
+        
+        return out
+
     def chooseDestination(self):
-        return (self.x, self.y)
+        x = self.map.getPreyLocations()
+        if x == []: # if there's no prey, don't move anywhere.
+            out = (self.x, self.y)
+        else:
+            #get prey location
+            [(x, y)] = self.map.getPreyLocations()
+
+            #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
+            if self.nextToPrey(x, y):
+                out = (x, y)
+            else: 
+                out = self.dimDirectionChooser()
+        return out
 
 class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -575,51 +590,80 @@ class TaurusMap:
         plt.clf()
 
 
-def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_speed = 1):
+#def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_speed = 1):
+def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLocArray = None, maxIter = 50, predator_speed = 1, prey_speed = 1):
     locations = []
     # initialize map
     taurusMap = TaurusMap(x_len,y_len)
 
-    # initialize prey in random locations not overlapping
-    i = 0
-    while i < len(preyClasses):
-        x_val = random.randint(0,x_len-1)
-        y_val = random.randint(0,y_len-1)
-        if (x_val, y_val) not in locations:
-            locations.append((x_val, y_val))
-            prey = preyClasses[i](prey_speed, x_val, y_val, taurusMap, 0)
-            taurusMap.addPrey(prey)
+    if preyLocArray == None:
+        # initialize prey in random locations not overlapping
+        i = 0
+        while i < len(preyClasses):
+            x_val = random.randint(0,x_len-1)
+            y_val = random.randint(0,y_len-1)
+            if (x_val, y_val) not in locations:
+                locations.append((x_val, y_val))
+                prey = preyClasses[i](prey_speed, x_val, y_val, taurusMap, 0)
+                taurusMap.addPrey(prey)
+                i += 1
+    else:
+        i = 0
+        while i < len(preyLocArray):
+            if preyLocArray[i] not in locations:
+                locations.append(preyLocArray[i])
+                prey = preyClasses[i](prey_speed, preyLocArray[i][0], preyLocArray[i][1], taurusMap, 0)
+                taurusMap.addPrey(prey)
+            else:
+                print("prey location invalid: " + str(preyLocArray[i]))
+                taurusMap.printMap()
+                exit(1)
             i += 1
 
     # initialize predators in random locations not overlapping
     i = 0
-    while i < len(predatorClasses):
-        x_val = random.randint(0,x_len-1)
-        y_val = random.randint(0,y_len-1)
-        if (x_val, y_val) not in locations:
-            locations.append((x_val, y_val))
-            predator = predatorClasses[i](predator_speed, x_val, y_val, taurusMap, i + 1)
-            taurusMap.addPredator(predator)
+    if predLocArray == None:
+        while i < len(predatorClasses):
+            x_val = random.randint(0,x_len-1)
+            y_val = random.randint(0,y_len-1)
+            if (x_val, y_val) not in locations:
+                locations.append((x_val, y_val))
+                predator = predatorClasses[i](predator_speed, x_val, y_val, taurusMap, i + 1)
+                taurusMap.addPredator(predator)
+                i += 1
+    else:
+        while i < len(predLocArray):
+            if predLocArray[i] not in locations:
+                locations.append(predLocArray[i])
+                predator = predatorClasses[i](predator_speed, predLocArray[i][0], predLocArray[i][1], taurusMap, i + 1)
+                taurusMap.addPredator(predator)
+            else:
+                print("pred location invalid: " + str(predLocArray[i]))
+                taurusMap.printMap()
+                print(locations)
+                exit(1)
             i += 1
-
     
     #global iterations
 
     # iterate through timesteps of simulation until prey is captured
     iterations = 0
     taurusMap.printMap()
-    while not taurusMap.preyCaptured():
+    while not taurusMap.preyCaptured() and iterations < maxIter:
         taurusMap.relocate()
         #taurusMap.displayMap()
         taurusMap.printMap()
         time.sleep(1)
         iterations += 1
+    if iterations >= maxIter:
+        return -1 #if it couldn't be solved, return -1 to indiciate failure
+    else:
+        return iterations
     
 
-if __name__ == "__main__":
-    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[StationaryPrey])
+#if __name__ == "__main__":
+    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[RandomPrey])
     #main(5,5,[GreedyPredator],[StationaryPrey])
     #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
-    main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
-    
+    #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
