@@ -57,12 +57,44 @@ class StationaryPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    def createSimulatedSelf(self):
+        temp = SimulatedStationaryPrey(0,0,0,0,0)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
+
     def chooseDestination(self):
         return (self.x,self.y)
 
+class SimulatedStationaryPrey(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def chooseDestination(self):
+        return (self.x,self.y)
 
 # Random moving prey
 class RandomPrey(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+    
+    def createSimulatedSelf(self):
+        temp = SimulatedRandomPrey(0,0,0,0,0)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
+
+    def chooseDestination(self):
+        return self.randomDirection()
+
+# Random moving prey
+class SimulatedRandomPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
     
@@ -228,6 +260,15 @@ class GreedyPredator(Agent):
                 out = self.dimDirectionChooser()
         print("agent: " + str(self.id) + " is going to: " + str(out))
         return out
+    
+    def createSimulatedSelf(self):
+        temp = SimulatedGreedyPredator(0, 0, 0, 0, 0)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
 class SimulatedGreedyPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -571,6 +612,9 @@ class TaurusMap:
 
     def getPredators(self):
         return self.predators
+
+    def getPrey(self):
+        return self.prey
 
     # applies taurus to coordinates       
     def taurusCoord(self,loc):
