@@ -465,7 +465,7 @@ class TeammateAwarePredator(Agent):
                 minDist = dist
         return minDist
     
-    def a_star(self):
+    def a_star(self, destination):
         # dictionary containing distance and path
         info = {(self.x,self.y): [0,[]]}
         
@@ -475,12 +475,10 @@ class TeammateAwarePredator(Agent):
         # list of points that have been explored
         done = []
 
-        # goal locations
-        adjPreyLoc = self.map.getAdjacentPreyLocations()
-
         # locations of predators, considered obstacles
         predLoc = self.map.getPredatorLocations()
-        
+        preyLoc = self.map.getPreyLocations()
+
         found_adjacent_space = False
         while not found_adjacent_space:
             # get data for closest target
@@ -494,7 +492,7 @@ class TeammateAwarePredator(Agent):
             queue = queue[1:]
 
             # stop when we are adjacent to prey
-            if coord in adjPreyLoc[0]:
+            if coord == destination:
                 found_adjacent_space = True
             else:
                 # get coords of nearby squares
@@ -504,9 +502,9 @@ class TeammateAwarePredator(Agent):
                     # determine how close point is to goal
                     h = self.h(pt)
                     f = g + h
-        
+                    
                     # if new location is predator, treat as obstacle and ignore
-                    if pt not in predLoc:
+                    if pt not in predLoc and pt not in preyLoc or pt == destination:
                         # if new location is undiscovered
                         if pt not in queue and pt not in done:
                             i = 0
@@ -524,6 +522,7 @@ class TeammateAwarePredator(Agent):
                             if not inserted:
                                 queue.append(pt)
                                 info[pt] = [g+h,new_path]
+
 
                         # if new location is discovered and not finished
                         elif pt in queue:
@@ -557,40 +556,64 @@ class TeammateAwarePredator(Agent):
         adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
         predLoc = self.map.getPredatorLocations()
 
-        # get distances of predators to adjacent squares
-        distances = []
-        for loc in predLoc:
+        # calculate distances to each adjacent location for each predator
+        distances = [[],[],[],[]]
+        for i in range(len(predLoc)):
+            loc = predLoc[i]
             for target in adjPreyLoc:
                 dist = self.map.getTotalDistance(loc,target)
-                distances.append((dist,loc,target))
+                distances[i].append((dist,loc,target))
 
-        # sort from furthest to closest to furthest away
-        distances.sort(reverse = True)
+        # sort each predator's choices by shortest distance
+        for dist in distances:
+            dist.sort()
+       
+        # keeps track of choice
+        choices = [0,0,0,0]
 
-        # keep track of number of predator to goal distances removed
-        predatorCount = {}
-        for loc in predLoc:
-            predatorCount[loc] = 0
+        # keeps track of predators who have not picked yet
+        unchosen = [0,1,2,3]
+
+        # keeps track of destination each predator chose
+        chosen_dest = [None, None, None, None]
         
-        destination = None
-        while allocation != []:
-            # remove worst distance, track which predator it belonged to
-            choice = distances[0]
-            predatorCount[choice[1]] += 1
-            distances = distances[1:]
+        done = False
+        while len(unchosen) > 0:
+            # look at choices predators have made
+            current_dest_choice = []
+            for i in unchosen:
+                current_dest_choice.append(distances[i][choices[i]])
 
-            # if this is last predator, give location to it
-            if predatorCount[choice[1]] == len(adjPreyLoc):
-                # if this is our predator, note destination and end early
-                if choice[1] == self.getLocation():
-                    destination = choice[2]
-                    break
+            # choose minimum choice of predator farthest away
+            increment = []
+            maxIndex = 0
+            maxVal = 0
+            for i in range(len(unchosen)):
+                if current_dest_choice[i][0] > maxVal:
+                    maxIndex = i
+                    maxVal = current_dest_choice[i][0]
 
-                # if not our predator, remove target as option for other predators
-                else:
-                    for dist in distances:
-                        if choice[2] == dist[2]:
-                            distances.remove(dist)
+            # remove chosen predator from list so it doesn't change
+            predIndex = unchosen[maxIndex]
+            chosen_dest[predIndex] = current_dest_choice[maxIndex][2]
+            unchosen.remove(predIndex)
+            
+            # make sure that next choice is not a duplicate
+            for i in unchosen:
+                curVal = distances[i][choices[i]]
+                while curVal[2] in chosen_dest:
+                    choices[i] += 1
+                    curVal = distances[i][choices[i]]
+        print(chosen_dest)
+        
+        # find this predator
+        thisPredator = None
+        for i in range(len(predLoc)):
+            if self.getLocation() == predLoc[i]:
+                thisPredator = i
+
+        # set to destination
+        destination = chosen_dest[thisPredator]
 
         # if predator is at goal location, move on prey, otherwise perform A*
         if self.getLocation() == destination:
