@@ -166,7 +166,7 @@ class SmartPrey3(Agent):
                 
         maxIndex = 0
         maxVal = -float("inf")
-        for i in range(len(x_distances)):
+        for i in range(len(distances)):
             if distances[i] > maxVal:
                 maxVal = distances[i]
                 maxIndex = i
@@ -971,3 +971,4 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
     #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
     #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
+    #print(main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[SmartPrey3]))
