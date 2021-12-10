@@ -58,7 +58,7 @@ class StationaryPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
 
     def createSimulatedSelf(self):
-        temp = SimulatedStationaryPrey(0,0,0,0,0)
+        temp = StationaryPrey(0,0,0,0,0)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
@@ -68,13 +68,14 @@ class StationaryPrey(Agent):
 
     def chooseDestination(self):
         return (self.x,self.y)
-
+'''
 class SimulatedStationaryPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
     def chooseDestination(self):
         return (self.x,self.y)
+'''
 
 # Random moving prey
 class RandomPrey(Agent):
@@ -82,7 +83,7 @@ class RandomPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
     
     def createSimulatedSelf(self):
-        temp = SimulatedRandomPrey(0,0,0,0,0)
+        temp = RandomPrey(0,0,0,0,0)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
@@ -92,7 +93,7 @@ class RandomPrey(Agent):
 
     def chooseDestination(self):
         return self.randomDirection()
-
+'''
 # Random moving prey
 class SimulatedRandomPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -100,7 +101,7 @@ class SimulatedRandomPrey(Agent):
     
     def chooseDestination(self):
         return self.randomDirection()
-
+'''
 
 # Greedy predator, constantly attempts to move towards prey, follows logic defined in paper
 class GreedyPredator(Agent):
@@ -258,18 +259,18 @@ class GreedyPredator(Agent):
                 out = (x, y)
             else: 
                 out = self.dimDirectionChooser()
-        print("agent: " + str(self.id) + " is going to: " + str(out))
+        #print("agent: " + str(self.id) + " is going to: " + str(out))
         return out
     
     def createSimulatedSelf(self):
-        temp = SimulatedGreedyPredator(0, 0, 0, 0, 0)
+        temp = GreedyPredator(0, 0, 0, 0, 0)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
         temp.map = self.map
         temp.id = self.id
         return temp
-
+'''
 class SimulatedGreedyPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
@@ -381,17 +382,17 @@ class SimulatedGreedyPredator(Agent):
                 return True
         return False
 
-    '''
-        Next codeblock represents:
-        * let d = dim_max, if m_d is not blocked, take it
-        * let d = dim_min, if m_d is not blocked, take it
+    
+    #    Next codeblock represents:
+    #   * let d = dim_max, if m_d is not blocked, take it
+    #    * let d = dim_min, if m_d is not blocked, take it
 
-        Outer if-elif statement checks which direction (x or y) has the larger dim_max.  For either case, we 
-        then check if the location we want to move is empty. if it is, then we move there, if it isn't, 
-        then we go to the direction that is the dim_min since there are only two directions, the other 
-        axis will always be the dim_min, so we can then check that direction to see if it's empty, and 
-        if it is move to that location.
-    '''    
+    #    Outer if-elif statement checks which direction (x or y) has the larger dim_max.  For either case, we 
+    #    then check if the location we want to move is empty. if it is, then we move there, if it isn't, 
+    #    then we go to the direction that is the dim_min since there are only two directions, the other 
+    #    axis will always be the dim_min, so we can then check that direction to see if it's empty, and 
+    #    if it is move to that location.
+    
     def dimDirectionChooser(self):
         goalDestination = self.findClosestDestination()[2]
             
@@ -427,6 +428,7 @@ class SimulatedGreedyPredator(Agent):
                 out = self.dimDirectionChooser()
         #print("agent: " + str(self.id) + " is going to: " + str(out))
         return out
+'''
 
 class GreedyProbabilisticPredator(GreedyPredator):
     def __init__(self, speed, x, y, taurusMap, id):
