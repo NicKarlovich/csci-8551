@@ -93,7 +93,7 @@ class RandomPrey(Agent):
 
     def chooseDestination(self):
         return self.randomDirection()
-'''
+
 # Random moving prey
 class SimulatedRandomPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -101,7 +101,78 @@ class SimulatedRandomPrey(Agent):
     
     def chooseDestination(self):
         return self.randomDirection()
-'''
+
+class SmartPrey1(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def chooseDestination(self):
+        predLoc = self.map.getPredatorLocations()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
+
+        x_distances = [0,0,0,0]
+        y_distances = [0,0,0,0]
+        for i in range(len(adjPreyLoc)):
+            for j in range(len(predLoc)):
+                x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
+                y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
+
+        maxIndex = 0
+        maxVal = -float("inf")
+        for i in range(len(x_distances)):
+            choice = min(x_distances[i],y_distances[i])
+            if choice > maxVal:
+                maxVal = choice
+                maxIndex = i
+
+        return adjPreyLoc[maxIndex]
+
+class SmartPrey2(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def chooseDestination(self):
+        predLoc = self.map.getPredatorLocations()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
+
+        x_distances = [0,0,0,0]
+        y_distances = [0,0,0,0]
+        for i in range(len(adjPreyLoc)):
+            for j in range(len(predLoc)):
+                x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
+                y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
+
+        maxIndex = 0
+        maxVal = -float("inf")
+        for i in range(len(x_distances)):
+            choice = max(x_distances[i],y_distances[i])
+            if choice > maxVal:
+                maxVal = choice
+                maxIndex = i
+
+        return adjPreyLoc[maxIndex]
+
+class SmartPrey3(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def chooseDestination(self):
+        predLoc = self.map.getPredatorLocations()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
+
+        distances = [0,0,0,0]
+        for i in range(len(adjPreyLoc)):
+            for j in range(len(predLoc)):
+                distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
+                
+        maxIndex = 0
+        maxVal = -float("inf")
+        for i in range(len(distances)):
+            if distances[i] > maxVal:
+                maxVal = distances[i]
+                maxIndex = i
+
+        return adjPreyLoc[maxIndex]
 
 # Greedy predator, constantly attempts to move towards prey, follows logic defined in paper
 class GreedyPredator(Agent):
@@ -901,3 +972,4 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
     #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
 
     #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
+    #print(main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[SmartPrey3]))
