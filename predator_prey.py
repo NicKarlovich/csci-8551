@@ -69,12 +69,14 @@ class StationaryPrey(Agent):
     def chooseDestination(self):
         return (self.x,self.y)
 
+
 class SimulatedStationaryPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
     def chooseDestination(self):
         return (self.x,self.y)
+
 
 # Random moving prey
 class RandomPrey(Agent):
@@ -93,6 +95,7 @@ class RandomPrey(Agent):
     def chooseDestination(self):
         return self.randomDirection()
 
+
 # Random moving prey
 class SimulatedRandomPrey(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -100,6 +103,7 @@ class SimulatedRandomPrey(Agent):
     
     def chooseDestination(self):
         return self.randomDirection()
+
 
 class SmartPrey1(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -126,6 +130,7 @@ class SmartPrey1(Agent):
 
         return adjPreyLoc[maxIndex]
 
+
 class SmartPrey2(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
@@ -150,6 +155,7 @@ class SmartPrey2(Agent):
                 maxIndex = i
 
         return adjPreyLoc[maxIndex]
+
 
 class SmartPrey3(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
