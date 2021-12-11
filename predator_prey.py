@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import time
 import random
 import math
-import numpy
 
 showing = False
 
@@ -89,7 +88,7 @@ class RandomPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
     
     def createSimulatedSelf(self):
-        temp = RandomPrey(0,0,0,0,0)
+        temp = RandomPrey(0,0,0,0,self.id)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
@@ -113,6 +112,15 @@ class SimulatedRandomPrey(Agent):
 class SmartPrey1(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = SmartPrey1(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
@@ -140,6 +148,15 @@ class SmartPrey2(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    def createSimulatedSelf(self):
+        temp = SmartPrey2(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
+
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
         adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
@@ -165,6 +182,15 @@ class SmartPrey2(Agent):
 class SmartPrey3(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = SmartPrey3(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
@@ -510,29 +536,6 @@ class SimulatedGreedyPredator(Agent):
         #print("agent: " + str(self.id) + " is going to: " + str(out))
         return out
 '''
-
-class GreedyProbabilisticPredator(GreedyPredator):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-    
-    def softmax(self):
-        
-        return out
-
-    def chooseDestination(self):
-        x = self.map.getPreyLocations()
-        if x == []: # if there's no prey, don't move anywhere.
-            out = (self.x, self.y)
-        else:
-            #get prey location
-            [(x, y)] = self.map.getPreyLocations()
-
-            #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
-            if self.nextToPrey(x, y):
-                out = (x, y)
-            else: 
-                out = self.dimDirectionChooser()
-        return out
 
 class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -974,12 +977,3 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
         return -1 #if it couldn't be solved, return -1 to indiciate failure
     else:
         return iterations
-    
-
-#if __name__ == "__main__":
-    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[RandomPrey])
-    #main(5,5,[GreedyPredator],[StationaryPrey])
-    #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
-
-    #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
-    #print(main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[SmartPrey3]))
