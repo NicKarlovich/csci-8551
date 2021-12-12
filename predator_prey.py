@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import time
 import random
 import math
-import numpy
 
 showing = False
 
@@ -58,7 +57,7 @@ class StationaryPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
 
     def createSimulatedSelf(self):
-        temp = StationaryPrey(0,0,0,0,0)
+        temp = StationaryPrey(0,0,0,0,self.id)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
@@ -68,19 +67,6 @@ class StationaryPrey(Agent):
 
     def chooseDestination(self):
         return (self.x,self.y)
-<<<<<<< HEAD
-
-
-=======
-'''
->>>>>>> 2997de627ae7e3ef7a2bd7d45fdb3d12e99355eb
-class SimulatedStationaryPrey(Agent):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-
-    def chooseDestination(self):
-        return (self.x,self.y)
-'''
 
 
 # Random moving prey
@@ -89,7 +75,7 @@ class RandomPrey(Agent):
         super().__init__(speed, x, y, taurusMap, id)
     
     def createSimulatedSelf(self):
-        temp = RandomPrey(0,0,0,0,0)
+        temp = RandomPrey(0,0,0,0,self.id)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
@@ -113,6 +99,15 @@ class SimulatedRandomPrey(Agent):
 class SmartPrey1(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = SmartPrey1(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
@@ -144,6 +139,15 @@ class SmartPrey2(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
 
+    def createSimulatedSelf(self):
+        temp = SmartPrey2(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
+
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
         adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
@@ -173,6 +177,15 @@ class SmartPrey2(Agent):
 class SmartPrey3(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = SmartPrey3(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
     def chooseDestination(self):
         predLoc = self.map.getPredatorLocations()
@@ -355,199 +368,26 @@ class GreedyPredator(Agent):
         return out
     
     def createSimulatedSelf(self):
-        temp = GreedyPredator(0, 0, 0, 0, 0)
+        temp = GreedyPredator(0, 0, 0, 0, self.id)
         temp.speed = self.speed
         temp.x = self.x
         temp.y = self.y
         temp.map = self.map
         temp.id = self.id
         return temp
-'''
-class SimulatedGreedyPredator(Agent):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-
-    #takes in x and y, returns a tuple with the value modulo'd by mapsize
-    def tauCoords(self, x, y):
-        return (x % self.map.x_len, y % self.map.y_len)
-
-    def totalDistanceToAgent(self, agentLocationTuple):
-        xOff = abs(self.xMagnitude(agentLocationTuple[0]))
-        yOff = abs(self.yMagnitude(agentLocationTuple[1]))
-        return xOff + yOff
-
-    def yMagnitude(self, yPreyLocation):
-        #offset = self.y - yPreyLocation
-        offset = yPreyLocation - self.y
-        
-        # the distance to prey location is less than half the board length, 
-        # thus it is faster than wrapping around toroidal nature of board 
-        if abs(offset) < math.ceil(self.map.y_len / 2):
-            yMag = offset
-        else:
-            # It is faster to wrap around toroidal nature of board to
-            # reach goal location, if abs(offset) == math.ceil(...) then it is equal distance to go either 
-            # direction.  Happen to choose to swap direction in this implementation, doesn't matter though
-            if offset < 0:
-                yMag = offset + self.map.y_len
-            elif offset > 0:
-                yMag = offset - self.map.y_len
-            else: #offset == 0
-                yMag = 0
-        return yMag
-        
-    def yDirection(self, yPreyLocation):
-        yMag = self.yMagnitude(yPreyLocation)
-        if yMag < 0:
-            dir = -1
-        if yMag > 0:
-            dir = 1
-        if yMag == 0:
-            dir = 0
-        return dir
-
-    def xMagnitude(self, xPreyLocation):
-        #offset = self.x - xPreyLocation
-        offset = xPreyLocation - self.x
-        
-        # the distance to prey location is less than half the board length, 
-        # thus it is faster than wrapping around toroidal nature of board 
-        if abs(offset) < math.ceil(self.map.x_len / 2):
-            xMag = offset
-        else:
-            # It is faster to wrap around toroidal nature of board to
-            # reach goal location, if abs(offset) == math.ceil(...) then it is equal distance to go either 
-            # direction.  Happen to choose to swap direction in this implementation, doesn't matter though
-            if offset < 0:
-                xMag = offset + self.map.x_len
-            elif offset > 0:
-                xMag = offset - self.map.x_len
-            else: #offset == 0
-                xMag = 0
-        return xMag
-
-    def xDirection(self, xPreyLocation):
-        xMag = self.xMagnitude(xPreyLocation)
-        if xMag < 0:
-            dir = -1
-        if xMag > 0:
-            dir = 1
-        if xMag == 0:
-            dir = 0
-        return dir
-
-    # Returns (cardinal direction, distance to that direction, coord of closest destination on taurus)
-    def findClosestDestination(self):
-        x = self.map.getPreyLocations()
-        if x == []: # if there's no prey, don't move anywhere.
-            return (self.x, self.y)
-
-        [(x, y)] = self.map.getPreyLocations()
-                            #N, S, W, E
-        unitDirectionArr = [self.tauCoords(x, y + 1), self.tauCoords(x, y - 1), self.tauCoords(x - 1, y), self.tauCoords(x + 1, y)]
-        namedDirectionsArr = ['north', 'south', 'west', 'east']
-        lengthArr = map(self.totalDistanceToAgent, unitDirectionArr)
-        stateOfLocationsArr = map(self.map.returnStateOfCell, unitDirectionArr)
-        tempLengthDict = dict(zip(namedDirectionsArr, lengthArr))
-        tempStateDict = dict(zip(namedDirectionsArr, stateOfLocationsArr))
-        stateDict = {key:val for key, val in tempStateDict.items() if val == "empty"}
-        lengthDict = dict(sorted(tempLengthDict.items(), key = lambda x:x[1]))
-        coordDict = dict(zip(namedDirectionsArr, unitDirectionArr))
-
-        for k,v in lengthDict.items():
-            if k in stateDict.keys():
-                coord = coordDict[k]
-                return(k, v, coord)
-        
-        return ('none', -1)
-
-    def nextToPrey(self, preyX, preyY):
-        if self.x == preyX:
-            if self.tauCoords(0,self.y - 1)[1] == preyY:
-                return True
-            elif self.tauCoords(0,self.y + 1)[1] == preyY:
-                return True
-        elif self.y == preyY:
-            if self.tauCoords(self.x - 1, 0)[0] == preyX:
-                return True
-            elif self.tauCoords(self.x + 1, 0)[0] == preyX:
-                return True
-        return False
-
-    
-    #    Next codeblock represents:
-    #   * let d = dim_max, if m_d is not blocked, take it
-    #    * let d = dim_min, if m_d is not blocked, take it
-
-    #    Outer if-elif statement checks which direction (x or y) has the larger dim_max.  For either case, we 
-    #    then check if the location we want to move is empty. if it is, then we move there, if it isn't, 
-    #    then we go to the direction that is the dim_min since there are only two directions, the other 
-    #    axis will always be the dim_min, so we can then check that direction to see if it's empty, and 
-    #    if it is move to that location.
-    
-    def dimDirectionChooser(self):
-        goalDestination = self.findClosestDestination()[2]
-            
-        xOff = self.xDirection(goalDestination[0])
-        yOff = self.yDirection(goalDestination[1])
-        out = ""
-        if abs(self.xMagnitude(goalDestination[0])) > abs(self.yMagnitude(goalDestination[1])):
-            if self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
-                out = self.tauCoords(self.x + xOff, self.y)
-            elif self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty":
-                out = self.tauCoords(self.x, self.y + yOff)
-        elif abs(self.xMagnitude(goalDestination[0])) <= abs(self.yMagnitude(goalDestination[1])):
-            if self.map.returnStateOfCell(self.tauCoords(self.x, self.y + yOff)) == "empty": 
-                out = self.tauCoords(self.x, self.y + yOff)
-            elif self.map.returnStateOfCell(self.tauCoords(self.x + xOff, self.y)) == "empty":
-                out = self.tauCoords(self.x + xOff, self.y)
-        if out == "": # Otherwise move randomly
-            out = self.randomDirection()
-        return out
-
-    def chooseDestination(self):
-        x = self.map.getPreyLocations()
-        if x == []: # if there's no prey, don't move anywhere.
-            out = (self.x, self.y)
-        else:
-            #get prey location
-            [(x, y)] = self.map.getPreyLocations()
-
-            #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
-            if self.nextToPrey(x, y):
-                out = (x, y)
-            else: 
-                out = self.dimDirectionChooser()
-        #print("agent: " + str(self.id) + " is going to: " + str(out))
-        return out
-'''
-
-class GreedyProbabilisticPredator(GreedyPredator):
-    def __init__(self, speed, x, y, taurusMap, id):
-        super().__init__(speed, x, y, taurusMap, id)
-    
-    def softmax(self):
-        
-        return out
-
-    def chooseDestination(self):
-        x = self.map.getPreyLocations()
-        if x == []: # if there's no prey, don't move anywhere.
-            out = (self.x, self.y)
-        else:
-            #get prey location
-            [(x, y)] = self.map.getPreyLocations()
-
-            #If already neighboring the prey, try to move onto the prey so that if it moves, the predator will follow.
-            if self.nextToPrey(x, y):
-                out = (x, y)
-            else: 
-                out = self.dimDirectionChooser()
-        return out
 
 class TeammateAwarePredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
         super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = TeammateAwarePredator(0, 0, 0, 0, self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
 
     # determines L1-norm distance to nearest adjacent square
     def h(self,coord):
@@ -570,12 +410,17 @@ class TeammateAwarePredator(Agent):
         done = []
 
         # locations of predators, considered obstacles
-        predLoc = self.map.getPredatorLocations()
-        preyLoc = self.map.getPreyLocations()
+        #predLoc = self.map.getPredatorLocations()
+        predLoc = self.map.getPredatorLocations().copy()
+        #preyLoc = self.map.getPreyLocations()
+        preyLoc = self.map.getPreyLocations().copy()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()
 
         found_adjacent_space = False
-        while not found_adjacent_space:
+        while not found_adjacent_space and queue != []:
             # get data for closest target
+            if queue == []:
+                print("dog")
             coord = queue[0]
             path = info[coord][1]
             g = len(path)
@@ -598,7 +443,7 @@ class TeammateAwarePredator(Agent):
                     f = g + h
                     
                     # if new location is predator, treat as obstacle and ignore
-                    if pt not in predLoc and pt not in preyLoc or pt == destination:
+                    if (pt not in predLoc and pt not in preyLoc) or pt == destination:
                         # if new location is undiscovered
                         if pt not in queue and pt not in done:
                             i = 0
@@ -640,6 +485,13 @@ class TeammateAwarePredator(Agent):
                                     queue.append(pt)
                                     info[pt] = [g+h,new_path]
 
+        # in the case where we cannnot physically get to the goal location
+        # go in a random direction instead.
+        if queue == []: #and not found_adjacent_space:
+            return self.randomDirection()
+            #self.map.printMap()
+            #print("5" + 5)
+        
         # return first step of shortest path
         if len(new_path) == 1:
             return self.map.getPreyLocations()[0]
@@ -698,7 +550,7 @@ class TeammateAwarePredator(Agent):
                 while curVal[2] in chosen_dest:
                     choices[i] += 1
                     curVal = distances[i][choices[i]]
-        print(chosen_dest)
+        #print(chosen_dest)
         
         # find this predator
         thisPredator = None
@@ -831,6 +683,8 @@ class TaurusMap:
     def relocate(self):
         # prey determine their moves
         preyMoves = []
+        #if self.prey[0].getLocation() == (1, 4):
+            #print("dog")
         for prey in self.prey:
             preyMoves.append(self.taurusCoord(prey.chooseDestination()))
             
@@ -985,12 +839,3 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
         return -1 #if it couldn't be solved, return -1 to indiciate failure
     else:
         return iterations
-    
-
-#if __name__ == "__main__":
-    #main(5,5,[GreedyPredator,GreedyPredator,GreedyPredator,GreedyPredator],[RandomPrey])
-    #main(5,5,[GreedyPredator],[StationaryPrey])
-    #main(10,10,[GreedyPredator, GreedyPredator],[StationaryPrey])
-
-    #main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[StationaryPrey])
-    #print(main(5,5,[TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator,TeammateAwarePredator],[SmartPrey3]))
