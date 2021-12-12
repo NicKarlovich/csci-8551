@@ -399,12 +399,17 @@ class TeammateAwarePredator(Agent):
         done = []
 
         # locations of predators, considered obstacles
-        predLoc = self.map.getPredatorLocations()
-        preyLoc = self.map.getPreyLocations()
+        #predLoc = self.map.getPredatorLocations()
+        predLoc = self.map.getPredatorLocations().copy()
+        #preyLoc = self.map.getPreyLocations()
+        preyLoc = self.map.getPreyLocations().copy()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()
 
         found_adjacent_space = False
-        while not found_adjacent_space:
+        while not found_adjacent_space and queue != []:
             # get data for closest target
+            if queue == []:
+                print("dog")
             coord = queue[0]
             path = info[coord][1]
             g = len(path)
@@ -427,7 +432,7 @@ class TeammateAwarePredator(Agent):
                     f = g + h
                     
                     # if new location is predator, treat as obstacle and ignore
-                    if pt not in predLoc and pt not in preyLoc or pt == destination:
+                    if (pt not in predLoc and pt not in preyLoc) or pt == destination:
                         # if new location is undiscovered
                         if pt not in queue and pt not in done:
                             i = 0
@@ -469,6 +474,13 @@ class TeammateAwarePredator(Agent):
                                     queue.append(pt)
                                     info[pt] = [g+h,new_path]
 
+        # in the case where we cannnot physically get to the goal location
+        # go in a random direction instead.
+        if queue == []: #and not found_adjacent_space:
+            return self.randomDirection()
+            #self.map.printMap()
+            #print("5" + 5)
+        
         # return first step of shortest path
         if len(new_path) == 1:
             return self.map.getPreyLocations()[0]
@@ -527,7 +539,7 @@ class TeammateAwarePredator(Agent):
                 while curVal[2] in chosen_dest:
                     choices[i] += 1
                     curVal = distances[i][choices[i]]
-        print(chosen_dest)
+        #print(chosen_dest)
         
         # find this predator
         thisPredator = None
@@ -660,6 +672,8 @@ class TaurusMap:
     def relocate(self):
         # prey determine their moves
         preyMoves = []
+        #if self.prey[0].getLocation() == (1, 4):
+            #print("dog")
         for prey in self.prey:
             preyMoves.append(self.taurusCoord(prey.chooseDestination()))
             

@@ -1,5 +1,6 @@
 from predator_prey import *
 from psuedoMCTSNode import *
+import copy
 
 class PsuedoMCTSPredator(Agent):
     def __init__(self, speed, x, y, taurusMap, id):
@@ -40,13 +41,13 @@ class PsuedoMCTSPredator(Agent):
         return False
 
     def createSimulatedSelf(self):
-            temp = self.otherPredType(0,0,0,0,self.id)
-            temp.speed = self.speed
-            temp.x = self.x
-            temp.y = self.y
-            temp.map = self.map
-            temp.id = self.id
-            return temp
+        temp = self.otherPredType(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
     
     def dimDirectionChooser(self):
         x = self.SimulatePredator()
@@ -86,7 +87,8 @@ class PsuedoMCTSPredator(Agent):
         avgMoveDest = []
         currentPrey = self.map.getPrey()
         currentPreds = self.map.getPredators()
-        currentPredLocations = self.map.getPredatorLocations().copy()
+        currentPredLocations = copy.deepcopy(self.map.getPredatorLocations())
+        #currentPredLocations = self.map.getPredatorLocations().copy()
         simPrey = []
         for prey in currentPrey:
             simPrey.append(prey.createSimulatedSelf())
@@ -94,7 +96,6 @@ class PsuedoMCTSPredator(Agent):
         simPred = []
         for pred in currentPreds:
             simPred.append(pred.createSimulatedSelf())
-
         for i in range(0, numIter):
             index = -1
             p = 0
@@ -118,8 +119,10 @@ class PsuedoMCTSPredator(Agent):
                     move = self.tauCoords(baseCoord[0] - 1, baseCoord[1])
 
                 #Get result of moving prey
-                preyLoc = self.map.getPreyLocations().copy()
-                predLoc = self.map.getPredatorLocations().copy()
+                #preyLoc = self.map.getPreyLocations().copy()
+                preyLoc = copy.deepcopy(self.map.getPreyLocations())
+                #predLoc = self.map.getPredatorLocations().copy()
+                predLoc = copy.deepcopy(self.map.getPredatorLocations())
                 if move not in preyLoc and move not in predLoc:
                     preyLoc = [move]
 
