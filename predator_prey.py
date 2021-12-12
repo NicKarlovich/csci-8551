@@ -195,10 +195,47 @@ class SmartPrey3(Agent):
         for i in range(len(adjPreyLoc)):
             for j in range(len(predLoc)):
                 if adjPreyLoc[i] in predLoc:
-                    distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
+                    distances[i] += self.map.getTotalDistance(self.getLocation(),predLoc[j])
                 else:
                     distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
                 
+        maxIndex = 0
+        maxVal = -float("inf")
+        for i in range(len(distances)):
+            if distances[i] > maxVal:
+                maxVal = distances[i]
+                maxIndex = i
+
+        return adjPreyLoc[maxIndex]
+
+class SmartPrey4(Agent):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+
+    def createSimulatedSelf(self):
+        temp = SmartPrey4(0,0,0,0,self.id)
+        temp.speed = self.speed
+        temp.x = self.x
+        temp.y = self.y
+        temp.map = self.map
+        temp.id = self.id
+        return temp
+
+    def chooseDestination(self):
+        predLoc = self.map.getPredatorLocations()
+        adjPreyLoc = self.map.getAdjacentPreyLocations()[0]
+
+        distances = [0,0,0,0]
+        for i in range(len(adjPreyLoc)):
+            for j in range(len(predLoc)):
+                if adjPreyLoc[i] in predLoc:
+                    val = self.map.getTotalDistance(self.getLocation(),predLoc[j])
+                    if val > distances[i]:
+                        distances[i] = val
+                else:
+                    val = self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
+                    if val > distances[i]:
+                        distances[i] = val
         maxIndex = 0
         maxVal = -float("inf")
         for i in range(len(distances)):
