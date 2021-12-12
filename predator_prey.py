@@ -122,8 +122,12 @@ class SmartPrey1(Agent):
         y_distances = [0,0,0,0]
         for i in range(len(adjPreyLoc)):
             for j in range(len(predLoc)):
-                x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
-                y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
+                if adjPreyLoc[i] in predLoc:
+                    x_distances[i] += self.map.getXDistance(self.getLocation(),predLoc[j])
+                    y_distances[i] += self.map.getYDistance(self.getLocation(),predLoc[j])
+                else:
+                    x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
+                    y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
 
         maxIndex = 0
         maxVal = -float("inf")
@@ -148,9 +152,13 @@ class SmartPrey2(Agent):
         y_distances = [0,0,0,0]
         for i in range(len(adjPreyLoc)):
             for j in range(len(predLoc)):
-                x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
-                y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
-
+                if adjPreyLoc[i] in predLoc:
+                    x_distances[i] += self.map.getXDistance(self.getLocation(),predLoc[j])
+                    y_distances[i] += self.map.getYDistance(self.getLocation(),predLoc[j])
+                else:
+                    x_distances[i] += self.map.getXDistance(adjPreyLoc[i],predLoc[j])
+                    y_distances[i] += self.map.getYDistance(adjPreyLoc[i],predLoc[j])
+        
         maxIndex = 0
         maxVal = -float("inf")
         for i in range(len(x_distances)):
@@ -173,7 +181,10 @@ class SmartPrey3(Agent):
         distances = [0,0,0,0]
         for i in range(len(adjPreyLoc)):
             for j in range(len(predLoc)):
-                distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
+                if adjPreyLoc[i] in predLoc:
+                    distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
+                else:
+                    distances[i] += self.map.getTotalDistance(adjPreyLoc[i],predLoc[j])
                 
         maxIndex = 0
         maxVal = -float("inf")
