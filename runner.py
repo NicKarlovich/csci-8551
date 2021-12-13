@@ -229,7 +229,7 @@ def runTests(tests,testNames):
     numberRuns = 100
 
     testList = [[0] * numberRuns] * 16
-    pool = multiprocessing.Pool(processes=80)
+    pool = multiprocessing.Pool(processes=70)
     for i in range(len(tests)):
         #code for only running 50 iters for 10x10
         if i > 3:
