@@ -408,8 +408,6 @@ class TeammateAwarePredator(Agent):
         found_adjacent_space = False
         while not found_adjacent_space and queue != []:
             # get data for closest target
-            if queue == []:
-                print("dog")
             coord = queue[0]
             path = info[coord][1]
             g = len(path)
@@ -756,9 +754,11 @@ class TaurusMap:
         plt.pause(0.0001)
         plt.clf()
 
+def main2(param):
+    return main(*param)
 
 #def main(x_len, y_len, predatorClasses, preyClasses, predator_speed = 1, prey_speed = 1):
-def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLocArray = None, maxIter = 50, predator_speed = 1, prey_speed = 1, output = True):
+def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLocArray = None, maxIter = 25, predator_speed = 1, prey_speed = 1, output = False):
     locations = []
     # initialize map
     taurusMap = TaurusMap(x_len,y_len)
@@ -782,8 +782,8 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
                 prey = preyClasses[i](prey_speed, preyLocArray[i][0], preyLocArray[i][1], taurusMap, 0)
                 taurusMap.addPrey(prey)
             else:
-                print("prey location invalid: " + str(preyLocArray[i]))
-                taurusMap.printMap()
+                #print("prey location invalid: " + str(preyLocArray[i]))
+                #taurusMap.printMap()
                 exit(1)
             i += 1
 
@@ -805,9 +805,9 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
                 predator = predatorClasses[i](predator_speed, predLocArray[i][0], predLocArray[i][1], taurusMap, i + 1)
                 taurusMap.addPredator(predator)
             else:
-                print("pred location invalid: " + str(predLocArray[i]))
-                taurusMap.printMap()
-                print(locations)
+                #print("pred location invalid: " + str(predLocArray[i]))
+                #taurusMap.printMap()
+                #print(locations)
                 exit(1)
             i += 1
     
@@ -822,7 +822,7 @@ def main(x_len, y_len, predatorClasses, preyClasses, preyLocArray = None, predLo
         #taurusMap.displayMap()
         if output:
             taurusMap.printMap()
-            time.sleep(1)
+            #time.sleep(1)
         iterations += 1
     if iterations >= maxIter:
         return -1 #if it couldn't be solved, return -1 to indiciate failure

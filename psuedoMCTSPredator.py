@@ -82,9 +82,14 @@ class PsuedoMCTSPredator(Agent):
     def SimulatePredator(self):
         self.resetNode()
         numIter = 100
-        MAX_RUNTIME = 10
-        avgMoves = [0] * 4
-        avgMoveDest = []
+        MAX_RUNTIME = 0
+        if self.map.x_len == 5:
+            MAX_RUNTIME = 25
+        elif self.map.x_len == 10:
+            MAX_RUNTIME = 100
+        else:
+            print("oh no")
+            exit(1)
         currentPrey = self.map.getPrey()
         currentPreds = self.map.getPredators()
         currentPredLocations = copy.deepcopy(self.map.getPredatorLocations())
@@ -168,8 +173,8 @@ class PsuedoMCTSPredator(Agent):
 
         (attempt, aa) = self.determineMoveOfUs(baseEntry, "anything else")
         
-        print('best move found (via MCTS):' + str(attempt))
-        self.root.printMCTSTree()
+        #print('best move found (via MCTS):' + str(attempt))
+        #self.root.printMCTSTree()
         return attempt  
 
     def chooseDestination(self):
@@ -186,7 +191,7 @@ class PsuedoMCTSPredator(Agent):
                 out = (x, y)
             else: 
                 out = self.dimDirectionChooser()
-        print("agent: " + str(self.id) + " is going to: " + str(out))
+        #print("agent: " + str(self.id) + " is going to: " + str(out))
         return out
 
 # Greedy Predators
