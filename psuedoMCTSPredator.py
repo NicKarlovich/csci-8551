@@ -219,6 +219,12 @@ class PsuedoMCTSGreedyPredSmartPrey3(PsuedoMCTSPredator):
         self.resetNode()
         self.setPredPrey(GreedyPredator, SmartPrey3)
 
+class PsuedoMCTSGreedyPredSmartPrey4(PsuedoMCTSPredator):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+        self.resetNode()
+        self.setPredPrey(GreedyPredator, SmartPrey4)
+
 ########################################################################
 # Teammate Aware Predators
 ########################################################################
@@ -245,3 +251,9 @@ class PsuedoMCTSTeammatePredSmartPrey3(PsuedoMCTSPredator):
         super().__init__(speed, x, y, taurusMap, id)
         self.resetNode()
         self.setPredPrey(TeammateAwarePredator, SmartPrey3)
+
+class PsuedoMCTSTeammatePredSmartPrey4(PsuedoMCTSPredator):
+    def __init__(self, speed, x, y, taurusMap, id):
+        super().__init__(speed, x, y, taurusMap, id)
+        self.resetNode()
+        self.setPredPrey(TeammateAwarePredator, SmartPrey4)

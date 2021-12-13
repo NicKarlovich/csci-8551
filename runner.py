@@ -1,10 +1,7 @@
 from random import Random
 from predator_prey import *
-from psuedoMCTSPredator import PsuedoMCTSGreedyPredRandomPrey, PsuedoMCTSGreedyPredSmartPrey1, PsuedoMCTSGreedyPredSmartPrey2, PsuedoMCTSGreedyPredSmartPrey3
-from psuedoMCTSPredator import PsuedoMCTSTeammatePredRandomPrey, PsuedoMCTSTeammatePredSmartPrey1, PsuedoMCTSTeammatePredSmartPrey2, PsuedoMCTSTeammatePredSmartPrey3
-
-from smartPredator import SmartGreedyPredRandomPrey, SmartGreedyPredSmartPrey1, SmartGreedyPredSmartPrey2, SmartGreedyPredSmartPrey3
-from smartPredator import SmartTeammatePredRandomPrey, SmartTeammatePredSmartPrey1, SmartTeammatePredSmartPrey2, SmartTeammatePredSmartPrey3
+from psuedoMCTSPredator import PsuedoMCTSGreedyPredRandomPrey, PsuedoMCTSGreedyPredSmartPrey1, PsuedoMCTSGreedyPredSmartPrey2, PsuedoMCTSGreedyPredSmartPrey3, PsuedoMCTSGreedyPredSmartPrey4
+from psuedoMCTSPredator import PsuedoMCTSTeammatePredRandomPrey, PsuedoMCTSTeammatePredSmartPrey1, PsuedoMCTSTeammatePredSmartPrey2, PsuedoMCTSTeammatePredSmartPrey3, PsuedoMCTSTeammatePredSmartPrey4
 
 from psuedoMCTSNode import *
 
@@ -16,8 +13,8 @@ board_sizes = [5, 10, 20]
 types_of_predators = [
     [ GreedyPredator, TeammateAwarePredator ],
     [ 
-        [ PsuedoMCTSGreedyPredRandomPrey, PsuedoMCTSGreedyPredSmartPrey1, PsuedoMCTSGreedyPredSmartPrey2, PsuedoMCTSGreedyPredSmartPrey3],
-        [ PsuedoMCTSTeammatePredRandomPrey, PsuedoMCTSTeammatePredSmartPrey1, PsuedoMCTSTeammatePredSmartPrey2, PsuedoMCTSTeammatePredSmartPrey3]
+        [ PsuedoMCTSGreedyPredRandomPrey, PsuedoMCTSGreedyPredSmartPrey1, PsuedoMCTSGreedyPredSmartPrey2, PsuedoMCTSGreedyPredSmartPrey3, PsuedoMCTSGreedyPredSmartPrey4],
+        [ PsuedoMCTSTeammatePredRandomPrey, PsuedoMCTSTeammatePredSmartPrey1, PsuedoMCTSTeammatePredSmartPrey2, PsuedoMCTSTeammatePredSmartPrey3, PsuedoMCTSTeammatePredSmartPrey4]
     ]
 ]
 
@@ -26,8 +23,16 @@ types_of_prey = [RandomPrey, SmartPrey1, SmartPrey2, SmartPrey3]
 # Testing
 GP = GreedyPredator
 TAP = TeammateAwarePredator
-PMGP = PsuedoMCTSGreedyPredRandomPrey
-PMTAP = PsuedoMCTSTeammatePredRandomPrey
+PMGPR = PsuedoMCTSGreedyPredRandomPrey
+PMGPS1 = PsuedoMCTSGreedyPredSmartPrey1
+PMGPS2 = PsuedoMCTSGreedyPredSmartPrey2
+PMGPS3 = PsuedoMCTSGreedyPredSmartPrey3
+PMGPS4 = PsuedoMCTSGreedyPredSmartPrey4
+PMTAPR = PsuedoMCTSTeammatePredRandomPrey
+PMTAPS1 = PsuedoMCTSTeammatePredSmartPrey1
+PMTAPS2 = PsuedoMCTSTeammatePredSmartPrey2
+PMTAPS3 = PsuedoMCTSTeammatePredSmartPrey3
+PMTAPS4 = PsuedoMCTSTeammatePredSmartPrey4
 #print("num iter: " + str(main(5, 5, [GP,GP, GP, PsuedoMCTSGreedyPredRandomPrey],[RandomPrey], preyLocArray=None, predLocArray = None, maxIter = 50)))
 
 '''
@@ -136,6 +141,21 @@ def getTestVals(PreyType):
     fiveByFiveNumIter = 35
     tenByTenNumIter = 120
 
+    if PreyType == RandomPrey:
+        PMGP = PMGPR
+        PMTAP = PMTAPR
+    if PreyType == SmartPrey1:
+        PMGP = PMGPS1
+        PMTAP = PMTAPS1
+    if PreyType == SmartPrey2:
+        PMGP = PMGPS2
+        PMTAP = PMTAPS2
+    if PreyType == SmartPrey3:
+        PMGP = PMGPS3
+        PMTAP = PMTAPS3
+    if PreyType == SmartPrey4:
+        PMGP = PMGPS4
+        PMTAP = PMTAPS4
 #5x5
     # 100 4 greedy
     tests[0] = (5, 5, [GP,GP, GP, GP],[PreyType], None, None, fiveByFiveNumIter, 1, 1, False)
