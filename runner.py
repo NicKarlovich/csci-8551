@@ -132,7 +132,10 @@ if __name__ == '__main__':
     TAP = TeammateAwarePredator
     PMGP = PsuedoMCTSGreedyPredRandomPrey
     PMTAP = PsuedoMCTSTeammatePredRandomPrey
+    Prey = SmartPrey1
     tests = [""] * 8
+    testNames = [""] * 8
+    
     # 100 4 greedy
     '''
     tests[0] = (5, 5, [GP,GP, GP, GP],[RandomPrey], None, None, 25, 1, 1, False)
@@ -155,22 +158,38 @@ if __name__ == '__main__':
     
 #5x5
     # 100 3 greedy, 1 mcts greedy, 
-    tests[0] = (5, 5, [GP,GP, GP, PMGP],[RandomPrey], None, None, 25, 1, 1, False)
+    tests[0] = (5, 5, [GP,GP, GP, PMGP],[Prey], None, None, 25, 1, 1, False)
+    testNames[0] = "5x5 100 3 greedy 1 mcts greedy,\n"
+    
     # 100 3 greedy, 1 mcts team, 
-    tests[1] = (5, 5, [GP,GP, GP, PMTAP],[RandomPrey], None, None, 25, 1, 1, False)
+    tests[1] = (5, 5, [GP,GP, GP, PMTAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[1] = "5x5 100 3 greedy 1 mcts team,\n"
+    
     # 100 3 team, 1 mcts greedy
-    tests[2] = (5, 5, [TAP,TAP, TAP, PMGP],[RandomPrey], None, None, 25, 1, 1, False)
+    tests[2] = (5, 5, [TAP,TAP, TAP, PMGP],[Prey], None, None, 25, 1, 1, False)
+    testNames[2] = "5x5 100 3 team 1 mcts greedy,\n"
+    
     # 100 3 team, 1 mcts team
-    tests[3] = (5, 5, [TAP,TAP, TAP, PMTAP],[RandomPrey], None, None, 25, 1, 1, False)
+    tests[3] = (5, 5, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[3] = "5x5 100 3 team 1 mcts team,\n"
+
 #10x10
     # 50 3 greedy, 1 mcts greedy, 
-    tests[4] = (10, 10, [GP,GP, GP, PMGP],[RandomPrey], None, None, 100, 1, 1, False)
+    tests[4] = (10, 10, [GP,GP, GP, PMGP],[Prey], None, None, 100, 1, 1, False)
+    testNames[4] = "10x10 100 3 greedy 1 mcts greedy,\n"
+    
     # 50 3 greedy, 1 mcts team, 
-    tests[5] = (10, 10, [GP,GP, GP, PMTAP],[RandomPrey], None, None, 100, 1, 1, False)
+    tests[5] = (10, 10, [GP,GP, GP, PMTAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[5] = "10x10 100 3 greedy 1 mcts team,\n"
+    
     # 5 3 team, 1 mcts greedy
-    tests[6] = (10, 10, [TAP,TAP, TAP, PMGP],[RandomPrey], None, None, 100, 1, 1, False)
+    tests[6] = (10, 10, [TAP,TAP, TAP, PMGP],[Prey], None, None, 100, 1, 1, False)
+    testNames[6] = "10x10 100 3 team 1 mcts greedy,\n"
+    
     # 50 3 team, 1 mcts team
-    tests[7] = (10, 10, [TAP,TAP, TAP, PMTAP],[RandomPrey], None, None, 100, 1, 1, False)
+    tests[7] = (10, 10, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[7] = "10x10 100 3 team 1 mcts team,\n"
+    
 # end
     
     
@@ -184,8 +203,12 @@ if __name__ == '__main__':
             numberRuns = 50
         temp = [tests[i]] * numberRuns
         testList[i] = pool.map(main2, temp)
+        
+        # removes list brackets
+        strOutput = testNames[i] + str(testList)[i][1:-1]
+
         f = open('output.txt', "a")
-        f.write(str(testList[i]) + "\n")
+        f.write(strOutput + "\n")
         f.close()
         print("Run [" + str(i) + "] done")
     '''
