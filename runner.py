@@ -126,73 +126,87 @@ maxIt = 25
 100 3 team, 1 mcts team, (best number iter)
 
 '''
-if __name__ == '__main__':
-    #      x, y,  predators                                       ourPred,                       prey,         prey/pred Loc, maxIter, speed, speed, output
+
+def getTestVals(PreyType):
+    tests = [""] * 16
+    testNames = [""]
+
+#5x5
+    # 100 4 greedy
+    tests[0] = (5, 5, [GP,GP, GP, GP],[Prey], None, None, 25, 1, 1, False)
+    testNames[0] = "5x5 100 4 greedy,\n"
+    
+    # 100 3 greedy, 1 team
+    tests[1] = (5, 5, [GP,GP, GP, TAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[1] = "5x5 100 3 greedy 1 team,\n"
+    
+    # 100 4 team
+    tests[2] = (5, 5, [TAP,TAP, TAP, TAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[2] = "5x5 100 4 team,\n"
+    
+    # 100 3 team, 1 greedy
+    tests[3] = (5, 5, [TAP,TAP, TAP, GP],[Prey], None, None, 25, 1, 1, False)
+    testNames[3] = "5x5 100 3 team 1 greedy,\n"
+    
+    # 100 3 greedy, 1 mcts greedy, 
+    tests[4] = (5, 5, [GP,GP, GP, PMGP],[Prey], None, None, 25, 1, 1, False)
+    testNames[4] = "5x5 100 3 greedy 1 mcts greedy,\n"
+    
+    # 100 3 greedy, 1 mcts team, 
+    tests[5] = (5, 5, [GP,GP, GP, PMTAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[5] = "5x5 100 3 greedy 1 mcts team,\n"
+    
+    # 100 3 team, 1 mcts greedy
+    tests[6] = (5, 5, [TAP,TAP, TAP, PMGP],[Prey], None, None, 25, 1, 1, False)
+    testNames[6] = "5x5 100 3 team 1 mcts greedy,\n"
+    
+    # 100 3 team, 1 mcts team
+    tests[7] = (5, 5, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 25, 1, 1, False)
+    testNames[7] = "5x5 100 3 team 1 mcts team,\n"
+
+#10x10
+    # 50 4 greedy
+    tests[8] = (10, 10, [GP,GP, GP, GP],[Prey], None, None, 100, 1, 1, False)
+    testNames[8] = "10x10 50 4 greedy,\n"
+    
+    # 50 3 greedy, 1 team
+    tests[9] = (10, 10, [GP,GP, GP, TAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[9] = "10x10 50 3 greedy 1 team,\n"
+
+    # 50 4 team
+    tests[10] = (10, 10, [TAP,TAP, TAP, TAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[10] = "10x10 50 4 team,\n"
+    
+    # 50 3 team, 1 greedy
+    tests[11] = (10, 10, [TAP,TAP, TAP, GP],[Prey], None, None, 100, 1, 1, False)
+    testNames[11] = "10x10 50 3 team 1 greedy,\n"
+    
+    # 50 3 greedy, 1 mcts greedy, 
+    tests[12] = (10, 10, [GP,GP, GP, PMGP],[Prey], None, None, 100, 1, 1, False)
+    testNames[12] = "10x10 100 3 greedy 1 mcts greedy,\n"
+    
+    # 50 3 greedy, 1 mcts team, 
+    tests[13] = (10, 10, [GP,GP, GP, PMTAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[13] = "10x10 100 3 greedy 1 mcts team,\n"
+    
+    # 5 3 team, 1 mcts greedy
+    tests[14] = (10, 10, [TAP,TAP, TAP, PMGP],[Prey], None, None, 100, 1, 1, False)
+    testNames[14] = "10x10 100 3 team 1 mcts greedy,\n"
+    
+    # 50 3 team, 1 mcts team
+    tests[15] = (10, 10, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 100, 1, 1, False)
+    testNames[15] = "10x10 100 3 team 1 mcts team,\n"
+
+    return tests,testNames
+
+
+def runTests(tests,testNames):
     GP = GreedyPredator
     TAP = TeammateAwarePredator
     PMGP = PsuedoMCTSGreedyPredRandomPrey
     PMTAP = PsuedoMCTSTeammatePredRandomPrey
     Prey = SmartPrey1
-    tests = [""] * 8
-    testNames = [""] * 8
-    
-    # 100 4 greedy
-    '''
-    tests[0] = (5, 5, [GP,GP, GP, GP],[RandomPrey], None, None, 25, 1, 1, False)
-    # 100 3 greedy, 1 team
-    tests[1] = (5, 5, [GP,GP, GP, TAP],[RandomPrey], None, None, 25, 1, 1, False)
-    # 100 4 team
-    tests[2] = (5, 5, [TAP,TAP, TAP, TAP],[RandomPrey], None, None, 25, 1, 1, False)
-    # 100 3 team, 1 greedy
-    tests[3] = (5, 5, [TAP,TAP, TAP, GP],[RandomPrey], None, None, 25, 1, 1, False)
-    #10x10
-    # 50 4 greedy
-    tests[4] = (10, 10, [GP,GP, GP, GP],[RandomPrey], None, None, 100, 1, 1, False)
-    # 50 3 greedy, 1 team
-    tests[5] = (10, 10, [GP,GP, GP, TAP],[RandomPrey], None, None, 100, 1, 1, False)
-    # 50 4 team
-    tests[6] = (10, 10, [TAP,TAP, TAP, TAP],[RandomPrey], None, None, 100, 1, 1, False)
-    # 50 3 team, 1 greedy
-    tests[7] = (10, 10, [TAP,TAP, TAP, GP],[RandomPrey], None, None, 100, 1, 1, False)
-    '''
-    
-#5x5
-    # 100 3 greedy, 1 mcts greedy, 
-    tests[0] = (5, 5, [GP,GP, GP, PMGP],[Prey], None, None, 25, 1, 1, False)
-    testNames[0] = "5x5 100 3 greedy 1 mcts greedy,\n"
-    
-    # 100 3 greedy, 1 mcts team, 
-    tests[1] = (5, 5, [GP,GP, GP, PMTAP],[Prey], None, None, 25, 1, 1, False)
-    testNames[1] = "5x5 100 3 greedy 1 mcts team,\n"
-    
-    # 100 3 team, 1 mcts greedy
-    tests[2] = (5, 5, [TAP,TAP, TAP, PMGP],[Prey], None, None, 25, 1, 1, False)
-    testNames[2] = "5x5 100 3 team 1 mcts greedy,\n"
-    
-    # 100 3 team, 1 mcts team
-    tests[3] = (5, 5, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 25, 1, 1, False)
-    testNames[3] = "5x5 100 3 team 1 mcts team,\n"
 
-#10x10
-    # 50 3 greedy, 1 mcts greedy, 
-    tests[4] = (10, 10, [GP,GP, GP, PMGP],[Prey], None, None, 100, 1, 1, False)
-    testNames[4] = "10x10 100 3 greedy 1 mcts greedy,\n"
-    
-    # 50 3 greedy, 1 mcts team, 
-    tests[5] = (10, 10, [GP,GP, GP, PMTAP],[Prey], None, None, 100, 1, 1, False)
-    testNames[5] = "10x10 100 3 greedy 1 mcts team,\n"
-    
-    # 5 3 team, 1 mcts greedy
-    tests[6] = (10, 10, [TAP,TAP, TAP, PMGP],[Prey], None, None, 100, 1, 1, False)
-    testNames[6] = "10x10 100 3 team 1 mcts greedy,\n"
-    
-    # 50 3 team, 1 mcts team
-    tests[7] = (10, 10, [TAP,TAP, TAP, PMTAP],[Prey], None, None, 100, 1, 1, False)
-    testNames[7] = "10x10 100 3 team 1 mcts team,\n"
-    
-# end
-    
-    
     numberRuns = 100
 
     testList = [[0] * numberRuns] * 8
@@ -211,13 +225,22 @@ if __name__ == '__main__':
         f.write(strOutput + "\n")
         f.close()
         print("Run [" + str(i) + "] done")
-    '''
-    for i in range(3):
-        a = [1,2,3,5,6,78,89]
-        f = open('output.txt', "a")
-        f.write(str(a) + "\n")
-        f.close()
-    '''
+
+
+if __name__ == '__main__':
+    #      x, y,  predators                                       ourPred,                       prey,         prey/pred Loc, maxIter, speed, speed, output
+
+    tests,testNames = getTestVals(SmartPrey1)
+    runTests(tests,testNames)
+
+    tests,testNames = getTestVals(SmartPrey2)
+    runTests(tests,testNames)
+
+    tests,testNames = getTestVals(SmartPrey3)
+    runTests(tests,testNames)
+
+    tests,testNames = getTestVals(SmartPrey4)
+    runTests(tests,testNames)
 
 
 # 100 3 greedy, 1 mcts greedy, 5 iter sim (if time)
