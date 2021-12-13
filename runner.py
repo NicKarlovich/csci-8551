@@ -248,9 +248,9 @@ def runTests(tests,testNames):
 
 if __name__ == '__main__':
     #      x, y,  predators                                       ourPred,                       prey,         prey/pred Loc, maxIter, speed, speed, output
-
-    tests,testNames = getTestVals(RandomPrey)
-    runTests(tests,testNames)
+		# already ran, in output already
+    #tests,testNames = getTestVals(RandomPrey)
+    #runTests(tests,testNames)
 
     tests,testNames = getTestVals(SmartPrey1)
     runTests(tests,testNames)
