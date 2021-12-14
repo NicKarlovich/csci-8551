@@ -238,7 +238,7 @@ def runTests(tests,testNames):
         testList[i] = pool.map(main2, temp)
         
         # removes list brackets
-        strOutput = testNames[i] + str(testList[i][1:-1])
+        strOutput = testNames[i] + str(testList[i])[1:-1] + ","
 
         f = open('output.txt', "a")
         f.write(strOutput + "\n")
